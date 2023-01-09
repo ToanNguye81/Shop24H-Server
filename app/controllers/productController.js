@@ -27,14 +27,6 @@ const getAllProduct = (request, response) => {
 const createProduct = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const body = request.body;
-    // _id: ObjectID,
-    // name: String, unique, required
-    // description: String
-    // type: ObjectID, ref: ProductType, required
-    // imageUrl: String, required
-    // buyPrice: Number, required
-    // promotionPrice: Number, required
-    // amount: Number, default: 0
 
     // B2: Validate dữ liệu
     // Kiểm tra name có hợp lệ hay không
@@ -53,6 +45,14 @@ const createProduct = (request, response) => {
         })
     }
 
+    // Kiểm tra brand có hợp lệ hay không
+    if (!body.brand) {
+        return response.status(400).json({
+            status: "Bad Request",
+            message: "brand không hợp lệ"
+        })
+    }
+
     // Kiểm tra imageUrl có hợp lệ hay không
     if (!body.imageUrl) {
         return response.status(400).json({
@@ -68,21 +68,42 @@ const createProduct = (request, response) => {
             message: "buyPrice không hợp lệ"
         })
     }
-     // Kiểm tra promotionPrice có hợp lệ hay không
-     if (!body.promotionPrice) {
+    // Kiểm tra promotionPrice có hợp lệ hay không
+    if (!body.promotionPrice) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "buyPrice không hợp lệ"
+            message: "promotionPrice không hợp lệ"
         })
     }
-      // Kiểm tra amount có hợp lệ hay không
-      if (!body.amount) {
+
+    // Kiểm tra gender có hợp lệ hay không
+    if (!body.gender) {
+        return response.status(400).json({
+            status: "Bad Request",
+            message: "gender không hợp lệ"
+        })
+    }
+    // Kiểm tra amount có hợp lệ hay không
+    if (!body.amount) {
         return response.status(400).json({
             status: "Bad Request",
             message: "amount không hợp lệ"
         })
     }
-
+    // Kiểm tra category có hợp lệ hay không
+    if (!body.category) {
+        return response.status(400).json({
+            status: "Bad Request",
+            message: "category không hợp lệ"
+        })
+    }
+    // Kiểm tra is_in_inventory có hợp lệ hay không
+    if (!body.is_in_inventory) {
+        return response.status(400).json({
+            status: "Bad Request",
+            message: "is_in_inventory không hợp lệ"
+        })
+    }
 
     // B3: Gọi Model tạo dữ liệu
     const newProduct = {
@@ -93,7 +114,13 @@ const createProduct = (request, response) => {
         imageUrl: body.imageUrl,
         buyPrice: body.buyPrice,
         promotionPrice: body.promotionPrice,
-        amount: body.amount
+        amount: body.amount,
+        brand: body.brand,
+        promotionPrice:body.promotionPrice, 
+        gender:body.gender, 
+        category:body.category, 
+        is_in_inventory:body.is_in_inventory, 
+        amount:body.amount
     }
 
     productModel.create(newProduct, (error, data) => {

@@ -1,5 +1,4 @@
 // Khai báo thư viện Express
-// Tương tự : import express from "express";
 const express = require("express");
 
 // khai báo mongoose 

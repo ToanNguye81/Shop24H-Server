@@ -11,13 +11,21 @@ const productSchema = new Schema({
         unique: true,
         required: true
     },
+    brand: {
+        type: String,
+        required: true
+    },
     description: {
         type: String,
         require: false
     },
-    type: {
-        type: mongoose.Types.ObjectId,
-        ref: "ProductType",
+    // type: {
+    //     type: mongoose.Types.ObjectId,
+    //     ref: "ProductType",
+    //     required: true
+    // },
+     type: {
+        type:String,
         required: true
     },
     imageUrl: {
@@ -32,7 +40,18 @@ const productSchema = new Schema({
         type: Number,
         required: true
     },
-    amount: {
+    gender: {
+        type: String,
+        require: true
+    },
+    category: {
+        type: String,
+        require: true
+    },
+    is_in_inventory: {
+        type: Boolean,
+        require: true,
+    }, amount: {
         type: Number,
         default: 0
     }

@@ -8,8 +8,8 @@ const getAllProduct = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     let limit = request.query.limit;
     let brand = request.query.brand;
-    let minProduct =request.query.minProduct;
-    let maxProduct =request.query.maxProduct;
+    let min =request.query.min;
+    let max =request.query.max;
     // B2: Validate dữ liệu
     
     //Tạo điều kiện lọc

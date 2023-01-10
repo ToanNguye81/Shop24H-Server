@@ -7,7 +7,21 @@ const productModel = require("../models/productModel");
 const getAllProduct = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     let limit = request.query.limit;
+    let brand = request.query.brand;
+    let minProduct =request.query.minProduct;
+    let maxProduct =request.query.maxProduct;
     // B2: Validate dữ liệu
+    
+    //Tạo điều kiện lọc
+    let condition ={};
+    
+    if (limit){
+        condition.limit=limit
+    }
+
+    if (brand){
+        condition.limit=limit
+    }
 
     // B3: Gọi Model tạo dữ liệu
     productModel.find().limit(limit).exec((error, data) => {
@@ -97,6 +111,7 @@ const createProduct = (request, response) => {
             message: "category không hợp lệ"
         })
     }
+
     // Kiểm tra is_in_inventory có hợp lệ hay không
     if (!body.is_in_inventory) {
         return response.status(400).json({

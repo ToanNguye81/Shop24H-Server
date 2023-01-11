@@ -6,25 +6,11 @@ const productModel = require("../models/productModel");
 
 const getAllProduct = (request, response) => {
     // B1: Chuẩn bị dữ liệu
-    let limit = request.query.limit;
-    let brand = request.query.brand;
-    let min =request.query.min;
-    let max =request.query.max;
+    let vLimit = request.query.limit;
     // B2: Validate dữ liệu
-    
-    //Tạo điều kiện lọc
-    let condition ={};
-    
-    if (limit){
-        condition.limit=limit
-    }
-
-    if (brand){
-        condition.limit=limit
-    }
 
     // B3: Gọi Model tạo dữ liệu
-    productModel.find().limit(limit).exec((error, data) => {
+    productModel.find().limit(vLimit).exec((error, data) => {
         if (error) {
             return response.status(500).json({
                 status: "Internal server error",

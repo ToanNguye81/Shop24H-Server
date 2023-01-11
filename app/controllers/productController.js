@@ -6,22 +6,46 @@ const productModel = require("../models/productModel");
 
 const getAllProduct = (request, response) => {
     // B1: Chuẩn bị dữ liệu
-    let vLimit = request.query.limit;
+    let limit = request.query.limit;
+    let start = request.query.start;
+    let brand = request.query.brand;
+    let maxPrice = request.query.maxPrice;
+    let minPrice = request.query.minPrice;
+    let ordinal = request.query.ordinal;
+
+    //Tạo điều kiện lọc
+    let condition = {}
+
+    if (brand) {
+        condition.brand = { $regex: brand }
+    }
+    if (minPrice) {
+        condition.promotionPrice = { $gte: minPrice}
+    }
+    if (maxPrice) {
+        condition.promotionPrice = { ...condition.promotionPrice, $lte:maxPrice}
+    }
+    console.log(condition)
     // B2: Validate dữ liệu
 
     // B3: Gọi Model tạo dữ liệu
-    productModel.find().limit(vLimit).exec((error, data) => {
-        if (error) {
-            return response.status(500).json({
-                status: "Internal server error",
-                message: error.message
+    productModel
+        .find(condition)
+        .sort({ name: ordinal })
+        .skip(start)
+        .limit(limit)
+        .exec((error, data) => {
+            if (error) {
+                return response.status(500).json({
+                    status: "Internal server error",
+                    message: error.message
+                })
+            }
+            return response.status(200).json({
+                status: "Get all Product successfully",
+                products: data
             })
-        }
-        return response.status(200).json({
-            status: "Get all Product successfully",
-            data: data
         })
-    })
 }
 
 const createProduct = (request, response) => {
@@ -117,11 +141,11 @@ const createProduct = (request, response) => {
         promotionPrice: body.promotionPrice,
         amount: body.amount,
         brand: body.brand,
-        promotionPrice:body.promotionPrice, 
-        gender:body.gender, 
-        category:body.category, 
-        is_in_inventory:body.is_in_inventory, 
-        amount:body.amount
+        promotionPrice: body.promotionPrice,
+        gender: body.gender,
+        category: body.category,
+        is_in_inventory: body.is_in_inventory,
+        amount: body.amount
     }
 
     productModel.create(newProduct, (error, data) => {

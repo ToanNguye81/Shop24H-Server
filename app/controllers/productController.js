@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const productModel = require("../models/productModel");
 
 const getAllProduct = (request, response) => {
+    console.log(request.query)
     // B1: Chuẩn bị dữ liệu
     let limit = request.query.limit;
     let start = request.query.start;
@@ -12,26 +13,30 @@ const getAllProduct = (request, response) => {
     let maxPrice = request.query.maxPrice;
     let minPrice = request.query.minPrice;
     let ordinal = request.query.ordinal;
+    let category = request.query.category;
 
     //Tạo điều kiện lọc
     let condition = {}
-
     if (brand) {
         condition.brand = { $regex: brand }
     }
     if (minPrice) {
-        condition.promotionPrice = { $gte: minPrice}
+        condition.promotionPrice = { $gte: minPrice }
     }
     if (maxPrice) {
-        condition.promotionPrice = { ...condition.promotionPrice, $lte:maxPrice}
+        condition.promotionPrice = { ...condition.promotionPrice, $lte: maxPrice }
     }
-    console.log(condition)
+    if (category) {
+        condition.category = { $regex: category }
+    }
+    //Tạo diều kiện sort
+    let sortCondition =[{},{promotionPrice:"asc"},{promotionPrice:"desc"},{name: "asc"},{name: "desc"}]
     // B2: Validate dữ liệu
 
     // B3: Gọi Model tạo dữ liệu
     productModel
         .find(condition)
-        .sort({ name: ordinal })
+        .sort(sortCondition[ordinal])
         .skip(start)
         .limit(limit)
         .exec((error, data) => {

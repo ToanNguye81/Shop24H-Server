@@ -19,30 +19,28 @@ const getAllCustomer = (request, response) => {
         return response.status(200).json({
             status: "Get all Customer successfully",
             data: data
-        }) 
+        })
     })
 }
 
 const createCustomer = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const body = request.body;
-    // {
-    // fullName: String, required
-    // email: String, required, unique
-    // address: String, required
-    // phone: String, required, unique
-    // orders: Array[ObjectID], ref: Order
-    // }
-
     // B2: Validate dữ liệu
-    // Kiểm tra fullName có hợp lệ hay không
-    if (!body.fullName) {
+    // Kiểm tra lastName có hợp lệ hay không
+    if (!body.lastName) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "fullName không hợp lệ"
+            message: "lastName không hợp lệ"
         })
     }
-
+    // Kiểm tra firstName có hợp lệ hay không
+    if (!body.firstName) {
+        return response.status(400).json({
+            status: "Bad Request",
+            message: "firstName không hợp lệ"
+        })
+    }
     //Kiểm tra email có hợp lệ không
     if (!body.email) {
         return response.status(400).json({
@@ -50,7 +48,6 @@ const createCustomer = (request, response) => {
             message: "email không hợp lệ"
         })
     }
-
     //Kiểm tra address có hợp lệ không
     if (!body.address) {
         return response.status(400).json({
@@ -58,17 +55,22 @@ const createCustomer = (request, response) => {
             message: "address không hợp lệ"
         })
     }
-
-    //Kiểm tra phone có hợp lệ không
-    if (!body.phone) {
+    //Kiểm tra country có hợp lệ không
+    if (!body.country) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "phone không hợp lệ"
+            message: "country không hợp lệ"
         })
     }
-
+     //Kiểm tra city có hợp lệ không
+     if (!body.city) {
+        return response.status(400).json({
+            status: "Bad Request",
+            message: "city không hợp lệ"
+        })
+    }
     //Kiểm tra orders có hợp lệ không
-    if (!body.orders) {
+    if (!mongoose.Types.ObjectId.isValid(body.orders)) {
         return response.status(400).json({
             status: "Bad Request",
             message: "orders không hợp lệ"
@@ -78,13 +80,16 @@ const createCustomer = (request, response) => {
     // B3: Gọi Model tạo dữ liệu
     const newCustomer = {
         _id: mongoose.Types.ObjectId(),
-        fullName: body.fullName,
+        lastName: body.lastName,
+        firstName:body.firstName,
+        country:body.country,
+        city:body.city,
+        phone: body.phone,
         email: body.email,
         address: body.address,
-        phone: body.phone,
         orders: body.orders,
     }
-
+                
     customerModel.create(newCustomer, (error, data) => {
         if (error) {
             return response.status(500).json({
@@ -141,10 +146,16 @@ const updateCustomerById = (request, response) => {
         })
     }
 
-    if (body.fullName !== undefined && body.fullName.trim() === "") {
+    if (body.lastName !== undefined && body.lastName.trim() === "") {
         return response.status(400).json({
             status: "Bad Request",
-            message: "fullName không hợp lệ"
+            message: "lastName không hợp lệ"
+        })
+    }
+    if (body.firstName !== undefined && body.firstName.trim() === "") {
+        return response.status(400).json({
+            status: "Bad Request",
+            message: "firstName không hợp lệ"
         })
     }
 
@@ -179,8 +190,12 @@ const updateCustomerById = (request, response) => {
     // B3: Gọi Model update dữ liệu
     const updateCustomer = {}
 
-    if (body.fullName !== undefined) {
-        updateCustomer.fullName = body.fullName
+    if (body.lastName !== undefined) {
+        updateCustomer.lastName = body.lastName
+    }
+
+    if (body.firstName !== undefined) {
+        updateCustomer.firstName = body.firstName
     }
 
     if (body.email !== undefined) {

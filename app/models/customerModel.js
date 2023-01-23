@@ -3,7 +3,7 @@ const mongoose = require("mongoose")
 const Schema = mongoose.Schema
 
 //Khởi tạo instance reviewSchema 
-const customerSchenma = new Schema({
+const customerSchema = new Schema({
     lastName: {
         type: String,
         required: true
@@ -44,5 +44,5 @@ const customerSchenma = new Schema({
     timestamps: true
 })
 
-// Biên dịch một Book Model từ bookscheme
-module.exports = mongoose.model("Customer", customerSchenma)
+// Biên dịch một Customer Model từ customerSchema
+module.exports = mongoose.model("Customer", customerSchema)

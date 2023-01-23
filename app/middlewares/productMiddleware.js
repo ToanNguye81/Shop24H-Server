@@ -9,7 +9,7 @@ const createProductMiddleware = (request, response, next) => {
 }
 
 const getProductMiddleware = (request, response, next) => {
-    console.log("Get Product Middleware");
+    console.log("Get Detail Product Middleware");
     next();
 }
 

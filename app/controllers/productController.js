@@ -180,7 +180,7 @@ const getProductById = (request, response) => {
         })
     }
 
-    // B3: Gọi Model tạo dữ liệu
+    // B3: Gọi Model lay dữ liệu
     productModel.findById(productId, (error, data) => {
         if (error) {
             return response.status(500).json({

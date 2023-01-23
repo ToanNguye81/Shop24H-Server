@@ -51,7 +51,8 @@ const productSchema = new Schema({
     is_in_inventory: {
         type: Boolean,
         require: true,
-    }, amount: {
+    },
+     amount: {
         type: Number,
         default: 0
     }

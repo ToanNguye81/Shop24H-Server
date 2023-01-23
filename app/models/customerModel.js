@@ -4,7 +4,11 @@ const Schema = mongoose.Schema
 
 //Khởi tạo instance reviewSchema 
 const customerSchenma = new Schema({
-    fullName: {
+    lastName: {
+        type: String,
+        required: true
+    },
+    firstName: {
         type: String,
         required: true
     },

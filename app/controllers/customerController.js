@@ -19,7 +19,7 @@ const getAllCustomer = (request, response) => {
         return response.status(200).json({
             status: "Get all Customer successfully",
             data: data
-        })
+        }) 
     })
 }
 

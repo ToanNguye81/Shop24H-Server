@@ -26,51 +26,52 @@ const getAllCustomer = (request, response) => {
 const createCustomer = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const body = request.body;
+    
     // B2: Validate dữ liệu
     // Kiểm tra lastName có hợp lệ hay không
-    if (!body.lastName) {
+    if (!body.lastName.trim()) {
         return response.status(400).json({
             status: "Bad Request",
             message: "lastName không hợp lệ"
         })
     }
     // Kiểm tra firstName có hợp lệ hay không
-    if (!body.firstName) {
+    if (!body.firstName.trim()) {
         return response.status(400).json({
             status: "Bad Request",
             message: "firstName không hợp lệ"
         })
     }
     //Kiểm tra email có hợp lệ không
-    if (!body.email) {
+    if (!body.email.trim()) {
         return response.status(400).json({
             status: "Bad Request",
             message: "email không hợp lệ"
         })
     }
     //Kiểm tra address có hợp lệ không
-    if (!body.address) {
+    if (!body.address.trim()) {
         return response.status(400).json({
             status: "Bad Request",
             message: "address không hợp lệ"
         })
     }
     //Kiểm tra country có hợp lệ không
-    if (!body.country) {
+    if (!body.country.trim()) {
         return response.status(400).json({
             status: "Bad Request",
             message: "country không hợp lệ"
         })
     }
-     //Kiểm tra city có hợp lệ không
-     if (!body.city) {
+    //Kiểm tra city có hợp lệ không
+    if (!body.city.trim()) {
         return response.status(400).json({
             status: "Bad Request",
             message: "city không hợp lệ"
         })
     }
     //Kiểm tra orders có hợp lệ không
-    if (!mongoose.Types.ObjectId.isValid(body.orders)) {
+    if (body.orders!== undefined && !mongoose.Types.ObjectId.isValid(body.orders)) {
         return response.status(400).json({
             status: "Bad Request",
             message: "orders không hợp lệ"
@@ -81,15 +82,15 @@ const createCustomer = (request, response) => {
     const newCustomer = {
         _id: mongoose.Types.ObjectId(),
         lastName: body.lastName,
-        firstName:body.firstName,
-        country:body.country,
-        city:body.city,
+        firstName: body.firstName,
+        country: body.country,
+        city: body.city,
         phone: body.phone,
         email: body.email,
         address: body.address,
         orders: body.orders,
     }
-                
+
     customerModel.create(newCustomer, (error, data) => {
         if (error) {
             return response.status(500).json({
@@ -152,6 +153,13 @@ const updateCustomerById = (request, response) => {
             message: "lastName không hợp lệ"
         })
     }
+
+    if (body.phone !== undefined && body.phone.trim() === "") {
+        return response.status(400).json({
+            status: "Bad Request",
+            message: "phone không hợp lệ"
+        })
+    }
     if (body.firstName !== undefined && body.firstName.trim() === "") {
         return response.status(400).json({
             status: "Bad Request",
@@ -166,6 +174,20 @@ const updateCustomerById = (request, response) => {
         })
     }
 
+    if (body.country !== undefined && body.country.trim() === "") {
+        return response.status(400).json({
+            status: "Bad Request",
+            message: "country không hợp lệ"
+        })
+    }
+
+    if (body.city !== undefined && body.city.trim() === "") {
+        return response.status(400).json({
+            status: "Bad Request",
+            message: "city không hợp lệ"
+        })
+    }
+
     if (body.address !== undefined && body.address.trim() === "") {
         return response.status(400).json({
             status: "Bad Request",
@@ -173,20 +195,13 @@ const updateCustomerById = (request, response) => {
         })
     }
 
-    if (body.phone !== undefined && body.phone.trim() === "") {
+    if (body.orders!== undefined && !mongoose.Types.ObjectId.isValid(body.orders)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "phone không hợp lệ"
+            message: "address không hợp lệ"
         })
     }
-
-    if (body.orders !== undefined && body.orders.trim() === "") {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "orders không hợp lệ"
-        })
-    }
-
+    
     // B3: Gọi Model update dữ liệu
     const updateCustomer = {}
 

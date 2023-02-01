@@ -6,27 +6,35 @@ const customerModel = require("../models/customerModel");
 
 const getAllCustomer = (request, response) => {
     // B1: Chuẩn bị dữ liệu
+    let limit = request.query.limit;
+    let page = request.query.page;
+    let skip = limit * (page - 1)
     // B2: Validate dữ liệu
     // B3: Gọi Model tạo dữ liệu
-    customerModel.find((error, data) => {
-        if (error) {
-            return response.status(500).json({
-                status: "Internal server error",
-                message: error.message
-            })
-        }
+    customerModel
+        .find()
+        .skip(skip)
+        .limit(limit)
+        .exec((error, data) => {
+            if (error) {
+                return response.status(500).json({
+                    status: "Internal server error",
+                    message: error.message
+                })
+            }
 
-        return response.status(200).json({
-            status: "Get all Customer successfully",
-            data: data
+            return response.status(200).json({
+                status: "Get all Customer successfully",
+                data: data
+            })
         })
-    })
+
 }
 
 const createCustomer = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const body = request.body;
-    
+
     // B2: Validate dữ liệu
     // Kiểm tra lastName có hợp lệ hay không
     if (!body.lastName.trim()) {
@@ -71,7 +79,7 @@ const createCustomer = (request, response) => {
         })
     }
     //Kiểm tra orders có hợp lệ không
-    if (body.orders!== undefined && !mongoose.Types.ObjectId.isValid(body.orders)) {
+    if (body.orders !== undefined && !mongoose.Types.ObjectId.isValid(body.orders)) {
         return response.status(400).json({
             status: "Bad Request",
             message: "orders không hợp lệ"
@@ -195,13 +203,13 @@ const updateCustomerById = (request, response) => {
         })
     }
 
-    if (body.orders!== undefined && !mongoose.Types.ObjectId.isValid(body.orders)) {
+    if (body.orders !== undefined && !mongoose.Types.ObjectId.isValid(body.orders)) {
         return response.status(400).json({
             status: "Bad Request",
             message: "address không hợp lệ"
         })
     }
-    
+
     // B3: Gọi Model update dữ liệu
     const updateCustomer = {}
 

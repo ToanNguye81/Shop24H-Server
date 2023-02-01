@@ -8,7 +8,8 @@ const getAllCustomer = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     let limit = request.query.limit;
     let page = request.query.page;
-    let skip = limit * (page - 1)
+    let skip = limit*page
+
     // B2: Validate dữ liệu
     // B3: Gọi Model tạo dữ liệu
     customerModel
@@ -28,7 +29,6 @@ const getAllCustomer = (request, response) => {
                 data: data
             })
         })
-
 }
 
 const createCustomer = (request, response) => {

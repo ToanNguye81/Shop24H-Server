@@ -14,6 +14,11 @@ const getAllProduct = (request, response) => {
     let minPrice = request.query.minPrice;
     let ordinal = request.query.ordinal;
     let category = request.query.category;
+    let page = request.query.page;
+    let skip = page * limit
+    if (page !== "") {
+        start = skip;
+    }
 
     //Tạo điều kiện lọc
     let condition = {}
@@ -30,7 +35,7 @@ const getAllProduct = (request, response) => {
         condition.category = { $regex: category }
     }
     //Tạo diều kiện sort
-    let sortCondition =[{},{promotionPrice:"asc"},{promotionPrice:"desc"},{name: "asc"},{name: "desc"}]
+    let sortCondition = [{}, { promotionPrice: "asc" }, { promotionPrice: "desc" }, { name: "asc" }, { name: "desc" }]
     // B2: Validate dữ liệu
 
     // B3: Gọi Model tạo dữ liệu
@@ -146,7 +151,6 @@ const createProduct = (request, response) => {
         promotionPrice: body.promotionPrice,
         amount: body.amount,
         brand: body.brand,
-        promotionPrice: body.promotionPrice,
         gender: body.gender,
         category: body.category,
         is_in_inventory: body.is_in_inventory,

@@ -19,13 +19,8 @@ const productSchema = new Schema({
         type: String,
         require: false
     },
-    // type: {
-    //     type: mongoose.Types.ObjectId,
-    //     ref: "ProductType",
-    //     required: true
-    // },
-     type: {
-        type:String,
+    type: {
+        type: String,
         required: true
     },
     imageUrl: {
@@ -40,19 +35,19 @@ const productSchema = new Schema({
         type: Number,
         required: true
     },
-    gender: {
-        type: String,
-        require: true
-    },
-    category: {
-        type: String,
-        require: true
-    },
-    is_in_inventory: {
-        type: Boolean,
-        require: true,
-    },
-     amount: {
+    // gender: {
+    //     type: String,
+    //     require: true
+    // },
+    // category: {
+    //     type: String,
+    //     require: true
+    // },
+    // is_in_inventory: {
+    //     type: Boolean,
+    //     require: true,
+    // },
+    amount: {
         type: Number,
         default: 0
     }

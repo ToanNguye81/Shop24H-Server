@@ -26,13 +26,6 @@ const getAllOrder = (request, response) => {
 const createOrder = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const body = request.body;
-    // orderCode: String, unique
-    // pizzaSize: String, required
-    // pizzaType: String, required
-    // voucher: ObjectID, ref: Voucher
-    // drink: ObjectID, ref: Drink
-    // status: String, required
-
 
     // B2: Validate dữ liệu
     // Kiểm tra orderCode có hợp lệ hay không
@@ -46,8 +39,6 @@ const createOrder = (request, response) => {
     // B3: Gọi Model tạo dữ liệu
     const newOrder = {
         _id: mongoose.Types.ObjectId(),
-        orderCode: body.orderCode,
-        phanTramGiamGia: body.phanTramGiamGia
     }
 
     orderModel.create(newOrder, (error, data) => {

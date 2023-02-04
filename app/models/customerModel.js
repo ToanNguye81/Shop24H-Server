@@ -35,7 +35,6 @@ const customerSchema = new Schema({
         default: ""
     },
     orders: [{
-        // Array[ObjectId],
         type: mongoose.Types.ObjectId,
         ref: "Order"
     }],

@@ -8,12 +8,12 @@ const Schema = mongoose.Schema
 const orderDetailSchema = new Schema({
     product: {
         type: mongoose.Types.ObjectId,
-        ref: "Product"
+        ref: 'Product'
     },
     quantity: {
         type: Number,
         default: 0
-    },
+    }
 }, {
     //Lưu dấu bảng ghi được cập nhật vào thời gian nào
     timestamps: true

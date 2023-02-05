@@ -278,7 +278,7 @@ const createOrderDetailOfOrder = (request, response) => {
                 message: error.message
             })
         }
-        // Thêm ID của detailOrder mới vào mảng orderDetail của Order đã chọn
+        // Thêm id của detailOrder mới vào mảng orderDetail của Order đã chọn
         orderModel.findByIdAndUpdate(orderId, {
             $push: {
                 orderDetail: data._id
@@ -297,6 +297,7 @@ const createOrderDetailOfOrder = (request, response) => {
             })
         })
     })
+
 }
 module.exports = {
     getAllOrderDetail,

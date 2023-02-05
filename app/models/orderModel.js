@@ -10,7 +10,7 @@ const orderSchema = new Schema({
     orderCode: {
         type: String,
         unique: true,
-        default:()=>crypto.randomBytes(64)
+        default:()=>crypto.randomBytes(3).toString('hex').substr(0, 6)
     },
     orderDate: {
         type: Date,
@@ -37,5 +37,5 @@ const orderSchema = new Schema({
     timestamps: true
 })
 
-// Biên dịch một Book Model từ bookscheme
+// Biên dịch một Order Model từ orderSchema
 module.exports = mongoose.model("Order", orderSchema)

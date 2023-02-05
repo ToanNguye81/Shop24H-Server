@@ -32,17 +32,16 @@ const orderSchema = new Schema({
         type: Number,
         default: 0
     },
-    
 }, {
     //Lưu dấu bảng ghi được cập nhật vào thời gian nào
     timestamps: true
 })
 
-    //Create orderCode
-    OrderSchema.pre('save', next => {
-        this.orderCode = uuid().slice(0, 6);
-        next();
-    });
+//Create orderCode
+orderSchema.pre('save', next => {
+    this.orderCode = uuid().slice(0, 6);
+    next();
+});
 
 // Biên dịch một Book Model từ bookscheme
 module.exports = mongoose.model("Order", orderSchema)

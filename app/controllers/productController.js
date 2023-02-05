@@ -13,7 +13,7 @@ const getAllProduct = (request, response) => {
     let maxPrice = request.query.maxPrice;
     let minPrice = request.query.minPrice;
     let ordinal = request.query.ordinal;
-    let category = request.query.category;
+    // let category = request.query.category;
     let page = request.query.page;
     let skip = page * limit
     if (page !== "") {
@@ -110,33 +110,11 @@ const createProduct = (request, response) => {
         })
     }
 
-    // Kiểm tra gender có hợp lệ hay không
-    if (!body.gender) {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "gender không hợp lệ"
-        })
-    }
     // Kiểm tra amount có hợp lệ hay không
     if (!body.amount) {
         return response.status(400).json({
             status: "Bad Request",
             message: "amount không hợp lệ"
-        })
-    }
-    // Kiểm tra category có hợp lệ hay không
-    if (!body.category) {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "category không hợp lệ"
-        })
-    }
-
-    // Kiểm tra is_in_inventory có hợp lệ hay không
-    if (!body.is_in_inventory) {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "is_in_inventory không hợp lệ"
         })
     }
 
@@ -151,9 +129,6 @@ const createProduct = (request, response) => {
         promotionPrice: body.promotionPrice,
         amount: body.amount,
         brand: body.brand,
-        gender: body.gender,
-        category: body.category,
-        is_in_inventory: body.is_in_inventory,
         amount: body.amount
     }
 

@@ -26,7 +26,6 @@ mongoose.connect("mongodb://127.0.0.1:27017/CRUD_Shop24h", function(error) {
 
 
 // Khai báo router app
-const productTypeRouter = require("./app/routers/productTypeRouter");
 const productRouter = require("./app/routers/productRouter");
 const customerRouter = require("./app/routers/customerRouter");
 const orderRouter = require("./app/routers/orderRouter");
@@ -34,7 +33,6 @@ const orderDetailRouter = require("./app/routers/orderDetailRouter");
 
 
 // App sử dụng router
-app.use("/", productTypeRouter);
 app.use("/", productRouter);
 app.use("/", orderRouter);
 app.use("/", customerRouter);

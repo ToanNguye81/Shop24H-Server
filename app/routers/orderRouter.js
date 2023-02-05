@@ -20,4 +20,8 @@ router.put("/orders/:orderId", orderMiddleware.updateOrderMiddleware, orderContr
 
 router.delete("/orders/:orderId", orderMiddleware.deleteOrderMiddleware, orderController.deleteOrderById)
 
+router.get("/customers/:customerId/orders", orderMiddleware.getAllOrderOfCustomerMiddleware, orderController.getAllOrderOfCustomer)
+
+router.post("/customers/:customerId/orders", orderMiddleware.createOrderOfCustomerMiddleware, orderController.createOrderOfCustomer)
+
 module.exports = router;

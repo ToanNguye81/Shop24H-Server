@@ -23,28 +23,21 @@ const getAllOrderDetail = (request, response) => {
     })
 }
 
+
 const createOrderDetail = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const body = request.body;
-    // {
-    // fullName: String, required
-    // email: String, required, unique
-    // address: String, required
-    // phone: String, required, unique
-    // orders: Array[ObjectID], ref: Order
-    // }
-
     // B2: Validate dữ liệu
-    // Kiểm tra fullName có hợp lệ hay không
-    if (!body.fullName) {
+    // Kiểm tra product có hợp lệ hay không
+    if (!mongoose.Types.ObjectId.isValid(body.product)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "fullName không hợp lệ"
+            message: "orderDetailID không hợp lệ"
         })
     }
 
-    //Kiểm tra email có hợp lệ không
-    if (!body.email) {
+    //Kiểm tra quantity có hợp lệ không
+    if (!body.quantity) {
         return response.status(400).json({
             status: "Bad Request",
             message: "email không hợp lệ"
@@ -59,30 +52,11 @@ const createOrderDetail = (request, response) => {
         })
     }
 
-    //Kiểm tra phone có hợp lệ không
-    if (!body.phone) {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "phone không hợp lệ"
-        })
-    }
-
-    //Kiểm tra orders có hợp lệ không
-    if (!body.orders) {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "orders không hợp lệ"
-        })
-    }
-
     // B3: Gọi Model tạo dữ liệu
     const newOrderDetail = {
         _id: mongoose.Types.ObjectId(),
-        fullName: body.fullName,
-        email: body.email,
-        address: body.address,
-        phone: body.phone,
-        orders: body.orders,
+        product: body.fullName,
+        quantity: body.email,
     }
 
     orderDetailModel.create(newOrderDetail, (error, data) => {
@@ -240,11 +214,19 @@ const deleteOrderDetailById = (request, response) => {
         })
     })
 }
+const getAllOrderDetailOfOrder=(request, response)=>{
+    
+}
 
+const createOrderDetailOfOrder=(request, response)=>{
+    
+}
 module.exports = {
     getAllOrderDetail,
     createOrderDetail,
     getOrderDetailById,
     updateOrderDetailById,
-    deleteOrderDetailById
+    deleteOrderDetailById,
+    getAllOrderDetailOfOrder,
+    createOrderDetailOfOrder
 }

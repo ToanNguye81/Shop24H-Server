@@ -22,11 +22,22 @@ const deleteOrderMiddleware = (request, response, next) => {
     console.log("Delete Order Middleware");
     next();
 }
+const createOrderOfCustomerMiddleware=(request, response, next) => {
+    console.log("Create order of Customer Middleware");
+    next();
+}
+const getAllOrderOfCustomerMiddleware=(request, response, next) => {
+    console.log("Get All of Customer Middleware");
+    next();
+}
 
 module.exports = {
     getAllOrderMiddleware,
     createOrderMiddleware,
     getOrderMiddleware,
     updateOrderMiddleware,
-    deleteOrderMiddleware
+    deleteOrderMiddleware,
+    createOrderOfCustomerMiddleware,
+    getAllOrderOfCustomerMiddleware
+
 }

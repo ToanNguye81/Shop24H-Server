@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 
 // Import Module Order Model
 const orderModel = require("../models/orderModel");
+const { createCustomer } = require("./customerController");
 
 const getAllOrder = (request, response) => {
     // B1: Chuẩn bị dữ liệu
@@ -21,6 +22,10 @@ const getAllOrder = (request, response) => {
             data: data
         })
     })
+}
+
+const getAllOrderOfCustomer=(request, response)=>{
+
 }
 
 const createOrder = (request, response) => {
@@ -55,6 +60,63 @@ const createOrder = (request, response) => {
         })
     })
 }
+
+const createOrderOfCustomer = async (request, response) => {
+
+    if (!email) {
+        return response.status(400).json({
+            status: "Error 400: Bad request",
+            message: "Email are required"
+        });
+    }
+
+    try {
+        let customer = await customerModel.findOne({ email });
+        if (!customer) {
+           await createCustomer(request,response)
+        //    user = await userModel.create({
+        //     _id: mongoose.Types.ObjectId(),
+        //     email,
+        //     firstname,
+        //     lastname
+        // });
+        }
+
+        await createOrder(request,response)
+        
+
+        const dice = Math.floor(Math.random() * 6 + 1);
+        const diceHistory = await diceHistoryModel.create({
+            _id: mongoose.Types.ObjectId(),
+            customer: customer._id,
+            dice
+        });
+
+        if (dice < 3) {
+            return response.status(200).json({
+                dice,
+                prize: null,
+                voucher: null
+            });
+        }
+
+        const countVoucher = await voucherModel.count().exec();
+        const randomVoucher = Math.floor(Math.random * countVoucher);
+        const voucher = await voucherModel.findOne().skip(randomVoucher).exec();
+
+        const voucherHistory = await voucherHistoryModel.create({
+            _id: mongoose.Types.ObjectId(),
+            customer: customer._id,
+            voucher: voucher._id
+        });
+  
+    } catch (error) {
+    return response.status(500).json({
+        status: "Error 500: Internal server error",
+        message: error.message
+    });
+}
+  };
 
 const getOrderById = (request, response) => {
     // B1: Chuẩn bị dữ liệu
@@ -170,5 +232,7 @@ module.exports = {
     createOrder,
     getOrderById,
     updateOrderById,
-    deleteOrderById
+    deleteOrderById,
+    createOrderOfCustomer,
+    getAllOrderOfCustomer
 }

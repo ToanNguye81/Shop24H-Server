@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 
 // Import Module OrderDetail Model
 const orderDetailModel = require("../models/orderDetailModel");
+const orderModel = require("../models/orderModel");
 
 const getAllOrderDetail = (request, response) => {
     // B1: Chuẩn bị dữ liệu
@@ -41,14 +42,6 @@ const createOrderDetail = (request, response) => {
         return response.status(400).json({
             status: "Bad Request",
             message: "email không hợp lệ"
-        })
-    }
-
-    //Kiểm tra address có hợp lệ không
-    if (!body.address) {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "address không hợp lệ"
         })
     }
 
@@ -214,12 +207,96 @@ const deleteOrderDetailById = (request, response) => {
         })
     })
 }
-const getAllOrderDetailOfOrder=(request, response)=>{
-    
+const getAllOrderDetailOfOrder = (request, response) => {
+     // B1: Chuẩn bị dữ liệu
+     const orderId = request.params.orderId;
+
+     // B2: Validate dữ liệu
+     if (!mongoose.Types.ObjectId.isValid(orderId)) {
+         return response.status(400).json({
+             status: "Bad Request",
+             message: "Course ID không hợp lệ"
+         })
+     }
+ 
+     // B3: Thao tác với cơ sở dữ liệu
+     orderModel.findById(orderId)
+         .populate("orderDetail")
+         .exec((error, data) => {
+             if (error) {
+                 return response.status(500).json({
+                     status: "Internal server error",
+                     message: error.message
+                 })
+             }
+ 
+             return response.status(200).json({
+                 status: "Get all detailOrder of order successfully",
+                 data: data
+             })
+         })
 }
 
-const createOrderDetailOfOrder=(request, response)=>{
-    
+const createOrderDetailOfOrder = (request, response) => {
+    // B1: Chuẩn bị dữ liệu
+    const orderId = request.params.orderId;
+    const body = request.body;
+
+    // B2: Validate dữ liệu
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+        return response.status(400).json({
+            status: "Bad Request",
+            message: "Order Id không hợp lệ"
+        })
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(body.product)) {
+        return response.status(400).json({
+            status: "Bad Request",
+            message: "Product không hợp lệ"
+        })
+    }
+
+    if (!(Number.isInteger(body.quantity) && body.quantity > 0)) {
+        return response.status(400).json({
+            status: "Bad Request",
+            message: "Quantity không hợp lệ"
+        })
+    }
+
+    // B3: Thao tác với cơ sở dữ liệu
+    const orderDetail = {
+        _id: mongoose.Types.ObjectId(),
+        product: body.product,
+        quantity: body.quantity
+    }
+
+    orderDetailModel.create(orderDetail, (error, data) => {
+        if (error) {
+            return response.status(500).json({
+                status: "Internal server error",
+                message: error.message
+            })
+        }
+        // Thêm ID của detailOrder mới vào mảng orderDetail của Order đã chọn
+        orderModel.findByIdAndUpdate(orderId, {
+            $push: {
+                orderDetail: data._id
+            }
+        }, (err, updatedOrder) => {
+            if (err) {
+                return response.status(500).json({
+                    status: "Internal server error",
+                    message: err.message
+                })
+            }
+
+            return response.status(201).json({
+                status: "Create Order Detail Successfully",
+                data: data
+            })
+        })
+    })
 }
 module.exports = {
     getAllOrderDetail,

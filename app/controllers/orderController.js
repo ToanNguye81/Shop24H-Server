@@ -24,7 +24,7 @@ const getAllOrder = (request, response) => {
     })
 }
 
-const getAllOrderOfCustomer=(request, response)=>{
+const getAllOrderOfCustomer = (request, response) => {
 
 }
 
@@ -61,69 +61,73 @@ const createOrder = (request, response) => {
     })
 }
 
-const createOrderOfCustomer = async (request, response) => {
-
-    if (!email) {
+const createOrderOfCustomer = (request, response) => {
+    // B1: Chuẩn bị dữ liệu
+    const customerId = request.params.customerId;
+    const body = request.body;
+   /*orderCode: {type: String,required: true,unique: true
+     orderDate: {type: Date,default: Date.now()
+     shippedDate: {type: Date,require: false
+     note: {type: String,require: false
+     orderDetails: [{type: mongoose.Types.ObjectId,ref: 'OrderDetail'
+     cost: {type: Number,default: 0
+    */
+    // B2: Validate dữ liệu
+    if (!mongoose.Types.ObjectId.isValid(orderDetail)) {
         return response.status(400).json({
-            status: "Error 400: Bad request",
-            message: "Email are required"
-        });
+            status: "Bad Request",
+            message: "Product không hợp lệ"
+        })
     }
 
-    try {
-        let customer = await customerModel.findOne({ email });
-        if (!customer) {
-           await createCustomer(request,response)
-        //    user = await userModel.create({
-        //     _id: mongoose.Types.ObjectId(),
-        //     email,
-        //     firstname,
-        //     lastname
-        // });
+    if (!(Number.isInteger(body.cost) && body.cost >= 0)) {
+        return response.status(400).json({
+            status: "Bad Request",
+            message: "Quantity không hợp lệ"
+        })
+    }
+
+    // B3: Thao tác với cơ sở dữ liệu
+    const orderDetail = {
+        _id: mongoose.Types.ObjectId(),
+        product: body.product,
+        cost: body.cost
+    }
+
+    orderDetailModel.create(orderDetail, (error, data) => {
+        if (error) {
+            return response.status(500).json({
+                status: "Internal server error",
+                message: error.message
+            })
         }
+        // Thêm ID của detailOrder mới vào mảng orderDetail của Order đã chọn
+        orderModel.findByIdAndUpdate(customerId, {
+            $push: {
+                orderDetail: data._id
+            }
+        }, (err, updatedOrder) => {
+            if (err) {
+                return response.status(500).json({
+                    status: "Internal server error",
+                    message: err.message
+                })
+            }
 
-        await createOrder(request,response)
-        
-
-        const dice = Math.floor(Math.random() * 6 + 1);
-        const diceHistory = await diceHistoryModel.create({
-            _id: mongoose.Types.ObjectId(),
-            customer: customer._id,
-            dice
-        });
-
-        if (dice < 3) {
-            return response.status(200).json({
-                dice,
-                prize: null,
-                voucher: null
-            });
-        }
-
-        const countVoucher = await voucherModel.count().exec();
-        const randomVoucher = Math.floor(Math.random * countVoucher);
-        const voucher = await voucherModel.findOne().skip(randomVoucher).exec();
-
-        const voucherHistory = await voucherHistoryModel.create({
-            _id: mongoose.Types.ObjectId(),
-            customer: customer._id,
-            voucher: voucher._id
-        });
-  
-    } catch (error) {
-    return response.status(500).json({
-        status: "Error 500: Internal server error",
-        message: error.message
-    });
-}
-  };
+            return response.status(201).json({
+                status: "Create Order Detail Successfully",
+                data: data
+            })
+        })
+    })
+};
 
 const getOrderById = (request, response) => {
     // B1: Chuẩn bị dữ liệu
-    const orderId = request.params.orderId;
+    const customerId = request.params.customerId;
 
     // B2: Validate dữ liệu
-    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+    if (!mongoose.Types.ObjectId.isValid(customerId)) {
         return response.status(400).json({
             status: "Bad Request",
             message: "orderID không hợp lệ"
@@ -131,7 +135,7 @@ const getOrderById = (request, response) => {
     }
 
     // B3: Gọi Model tạo dữ liệu
-    orderModel.findById(orderId, (error, data) => {
+    orderModel.findById(customerId, (error, data) => {
         if (error) {
             return response.status(500).json({
                 status: "Internal server error",
@@ -148,11 +152,11 @@ const getOrderById = (request, response) => {
 
 const updateOrderById = (request, response) => {
     // B1: Chuẩn bị dữ liệu
-    const orderId = request.params.orderId;
+    const customerId = request.params.customerId;
     const body = request.body;
 
     // B2: Validate dữ liệu
-    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+    if (!mongoose.Types.ObjectId.isValid(customerId)) {
         return response.status(400).json({
             status: "Bad Request",
             message: "orderID không hợp lệ"
@@ -185,7 +189,7 @@ const updateOrderById = (request, response) => {
         updateOrder.phanTramGiamGia = body.phanTramGiamGia
     }
 
-    orderModel.findByIdAndUpdate(orderId, updateOrder, (error, data) => {
+    orderModel.findByIdAndUpdate(customerId, updateOrder, (error, data) => {
         if (error) {
             return response.status(500).json({
                 status: "Internal server error",
@@ -202,10 +206,10 @@ const updateOrderById = (request, response) => {
 
 const deleteOrderById = (request, response) => {
     // B1: Chuẩn bị dữ liệu
-    const orderId = request.params.orderId;
+    const customerId = request.params.customerId;
 
     // B2: Validate dữ liệu
-    if (!mongoose.Types.ObjectId.isValid(orderId)) {
+    if (!mongoose.Types.ObjectId.isValid(customerId)) {
         return response.status(400).json({
             status: "Bad Request",
             message: "orderID không hợp lệ"
@@ -213,7 +217,7 @@ const deleteOrderById = (request, response) => {
     }
 
     // B3: Gọi Model tạo dữ liệu
-    orderModel.findByIdAndDelete(orderId, (error, data) => {
+    orderModel.findByIdAndDelete(customerId, (error, data) => {
         if (error) {
             return response.status(500).json({
                 status: "Internal server error",

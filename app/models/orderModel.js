@@ -9,8 +9,8 @@ const Schema = mongoose.Schema
 const orderSchema = new Schema({
     orderCode: {
         type: String,
-        required: true,
-        unique: true
+        unique: true,
+        default:()=>crypto.randomBytes(64)
     },
     orderDate: {
         type: Date,
@@ -36,12 +36,6 @@ const orderSchema = new Schema({
     //Lưu dấu bảng ghi được cập nhật vào thời gian nào
     timestamps: true
 })
-
-//Create orderCode
-orderSchema.pre('save', next => {
-    this.orderCode = uuid().slice(0, 6);
-    next();
-});
 
 // Biên dịch một Book Model từ bookscheme
 module.exports = mongoose.model("Order", orderSchema)

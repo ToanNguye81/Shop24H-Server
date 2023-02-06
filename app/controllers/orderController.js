@@ -65,7 +65,7 @@ const createOrderOfCustomer = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const customerId = request.params.customerId;
     const { orderDate, shippedDate, note, orderDetails, cost } = request.body.order
-    const { firstName,lastName,email,country,city,address,phone } = request.body.customer
+    const { firstName, lastName, email, country, city, address, phone } = request.body.customer
     // B2: Validate dữ liệu
     if (!mongoose.Types.ObjectId.isValid(orderDetail)) {
         return response.status(400).json({
@@ -84,7 +84,7 @@ const createOrderOfCustomer = (request, response) => {
     // B3: Thao tác với cơ sở dữ liệu
     const newOrder = {
         _id: mongoose.Types.ObjectId(),
-        orderCode: orderCode,
+        // orderCode: orderCode,
         orderDate: orderDate,
         shippedDate: shippedDate,
         note: note,
@@ -102,7 +102,7 @@ const createOrderOfCustomer = (request, response) => {
         phone: phone
     }
 
-    const condition = { email: body.email };
+    const condition = { email: email };
     customerModel
         .findOne(condition)
         .exec((error, existCustomer) => {
@@ -134,8 +134,6 @@ const createOrderOfCustomer = (request, response) => {
                                         data: createdOrder
                                     })
                                 }
-
-
                             })
                         }
                     })
@@ -173,7 +171,7 @@ const getOrderById = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(customerId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "orderID không hợp lệ"
+            message: "orderId không hợp lệ"
         })
     }
 
@@ -202,7 +200,7 @@ const updateOrderById = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(customerId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "orderID không hợp lệ"
+            message: "orderId không hợp lệ"
         })
     }
 
@@ -255,7 +253,7 @@ const deleteOrderById = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(customerId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "orderID không hợp lệ"
+            message: "orderId không hợp lệ"
         })
     }
 

@@ -162,7 +162,7 @@ const getCustomerById = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(customerId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "customerID không hợp lệ"
+            message: "customerId không hợp lệ"
         })
     }
 
@@ -191,7 +191,7 @@ const updateCustomerById = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(customerId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "customerID không hợp lệ"
+            message: "customerId không hợp lệ"
         })
     }
 
@@ -300,7 +300,7 @@ const deleteCustomerById = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(customerId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "customerID không hợp lệ"
+            message: "customerId không hợp lệ"
         })
     }
 

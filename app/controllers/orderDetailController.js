@@ -33,7 +33,7 @@ const createOrderDetail = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(body.product)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "orderDetailID không hợp lệ"
+            message: "orderDetailId không hợp lệ"
         })
     }
 
@@ -48,7 +48,7 @@ const createOrderDetail = (request, response) => {
     // B3: Gọi Model tạo dữ liệu
     const newOrderDetail = {
         _id: mongoose.Types.ObjectId(),
-        product: body.fullName,
+        product: body.product,
         quantity: body.email,
     }
 
@@ -75,7 +75,7 @@ const getOrderDetailById = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(orderDetailId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "orderDetailID không hợp lệ"
+            message: "orderDetailId không hợp lệ"
         })
     }
 
@@ -104,66 +104,33 @@ const updateOrderDetailById = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(orderDetailId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "orderDetailID không hợp lệ"
+            message: "orderDetailId không hợp lệ"
         })
     }
 
-    if (body.fullName !== undefined && body.fullName.trim() === "") {
+    if (!mongoose.Types.ObjectId.isValid(body.product)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "fullName không hợp lệ"
+            message: "product không hợp lệ"
         })
     }
 
-    if (body.email !== undefined && body.email.trim() === "") {
+    if (body.quantity !== undefined && body.quantity.trim() === "") {
         return response.status(400).json({
             status: "Bad Request",
             message: "email không hợp lệ"
         })
     }
 
-    if (body.address !== undefined && body.address.trim() === "") {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "address không hợp lệ"
-        })
-    }
-
-    if (body.phone !== undefined && body.phone.trim() === "") {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "phone không hợp lệ"
-        })
-    }
-
-    if (body.orders !== undefined && body.orders.trim() === "") {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "orders không hợp lệ"
-        })
-    }
-
     // B3: Gọi Model update dữ liệu
     const updateOrderDetail = {}
 
-    if (body.fullName !== undefined) {
-        updateOrderDetail.fullName = body.fullName
+    if (body.product !== undefined) {
+        updateOrderDetail.product = body.product
     }
 
-    if (body.email !== undefined) {
-        updateOrderDetail.email = body.email
-    }
-
-    if (body.address !== undefined) {
-        updateOrderDetail.address = body.address
-    }
-
-    if (body.phone !== undefined) {
-        updateOrderDetail.phone = body.phone
-    }
-
-    if (body.orders !== undefined) {
-        updateOrderDetail.orders = body.orders
+    if (body.quantity !== undefined) {
+        updateOrderDetail.quantity = body.quantity
     }
 
     orderDetailModel.findByIdAndUpdate(orderDetailId, updateOrderDetail, (error, data) => {
@@ -189,7 +156,7 @@ const deleteOrderDetailById = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(orderDetailId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "orderDetailID không hợp lệ"
+            message: "orderDetailId không hợp lệ"
         })
     }
 
@@ -215,7 +182,7 @@ const getAllOrderDetailOfOrder = (request, response) => {
      if (!mongoose.Types.ObjectId.isValid(orderId)) {
          return response.status(400).json({
              status: "Bad Request",
-             message: "Course ID không hợp lệ"
+             message: "Course Id không hợp lệ"
          })
      }
  
@@ -297,7 +264,6 @@ const createOrderDetailOfOrder = (request, response) => {
             })
         })
     })
-
 }
 module.exports = {
     getAllOrderDetail,

@@ -13,7 +13,7 @@ const getAllProduct = (request, response) => {
     let maxPrice = request.query.maxPrice;
     let minPrice = request.query.minPrice;
     let ordinal = request.query.ordinal;
-    // let category = request.query.category;
+    let category = request.query.category;
     let page = request.query.page;
     let skip = page * limit
     if (page !== "") {
@@ -155,7 +155,7 @@ const getProductById = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(productId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "productID không hợp lệ"
+            message: "productId không hợp lệ"
         })
     }
 
@@ -184,7 +184,7 @@ const updateProductById = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(productId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "productID không hợp lệ"
+            message: "productId không hợp lệ"
         })
     }
 
@@ -269,7 +269,7 @@ const deleteProductById = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(productId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "productID không hợp lệ"
+            message: "productId không hợp lệ"
         })
     }
 

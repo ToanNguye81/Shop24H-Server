@@ -5,23 +5,42 @@ const mongoose = require("mongoose");
 const orderDetailModel = require("../models/orderDetailModel");
 const orderModel = require("../models/orderModel");
 
-const getAllOrderDetail = (request, response) => {
-    // B1: Chuẩn bị dữ liệu
-    // B2: Validate dữ liệu
-    // B3: Gọi Model tạo dữ liệu
-    orderDetailModel.find((error, data) => {
-        if (error) {
-            return response.status(500).json({
-                status: "Internal server error",
-                message: error.message
-            })
-        }
+const getAllOrderDetail =async (request, response) => {
+    try {
+        // B1: Prepare data
+        let { limit, page, condition, sortBy, sortOrder } = request.query;
+        limit = parseInt(limit) || 10;
+        page = parseInt(page) || 0;
+        sortBy = sortBy || 'createdAt';
+        sortOrder = sortOrder || 'desc';
+        const skip = limit * page;
+        const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
+        condition = condition ? JSON.parse(condition) : {};
+        console.log(condition)
 
+        // B2: Call the Model to create data
+        const totalCount = await orderDetailModel.countDocuments(condition);
+        const data = await orderDetailModel
+            .find(condition)
+            .skip(skip)
+            .limit(limit)
+            .sort(sort)
+            .exec();
+
+        // B3: Get total count
+        // Return success response
         return response.status(200).json({
-            status: "Get all OrderDetail successfully",
+            status: "Get all customers successfully",
+            totalCount: totalCount,
             data: data
-        })
-    })
+        });
+    } catch (error) {
+        // Return error response
+        return response.status(500).json({
+            status: "Internal server error",
+            message: error.message
+        });
+    }
 }
 
 
@@ -208,6 +227,7 @@ const createOrderDetailOfOrder = async (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const orderId = request.params.orderId;
     const { product, quantity } = request.body;
+    console.log(request.body)
 
     // B2: Validate dữ liệu
     const { error } = validateOrderDetail(orderId, product, quantity);

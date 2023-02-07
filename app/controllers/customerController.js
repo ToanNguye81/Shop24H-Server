@@ -88,33 +88,6 @@ const createCustomer = (request, response) => {
 }
 
 
-// const getAllCustomer = (request, response) => {
-//     // B1: Chuẩn bị dữ liệu
-//     let limit = request.query.limit;
-//     let page = request.query.page;
-//     let skip = limit * page
-
-//     // B2: Validate dữ liệu
-//     // B3: Gọi Model tạo dữ liệu
-//     customerModel
-//         .find()
-//         .skip(skip)
-//         .limit(limit)
-//         .exec((error, data) => {
-//             if (error) {
-//                 return response.status(500).json({
-//                     status: "Internal server error",
-//                     message: error.message
-//                 })
-//             }
-
-//             return response.status(200).json({
-//                 status: "Get all Customer successfully",
-//                 data: data
-//             })
-//         })
-// }
-
 const getAllCustomer = async (request, response) => {
     try {
         // B1: Prepare data
@@ -129,6 +102,7 @@ const getAllCustomer = async (request, response) => {
         console.log(condition)
 
         // B2: Call the Model to create data
+        const totalCount = await customerModel.countDocuments(condition);
         const data = await customerModel
             .find(condition)
             .skip(skip)
@@ -137,7 +111,6 @@ const getAllCustomer = async (request, response) => {
             .exec();
 
         // B3: Get total count
-        const totalCount = await customerModel.countDocuments(condition);
         // Return success response
         return response.status(200).json({
             status: "Get all customers successfully",
@@ -153,7 +126,6 @@ const getAllCustomer = async (request, response) => {
     }
 };
 
-
 const getCustomerById = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const customerId = request.params.customerId;
@@ -162,7 +134,7 @@ const getCustomerById = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(customerId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "customerId không hợp lệ"
+            message: "customerID không hợp lệ"
         })
     }
 
@@ -191,7 +163,7 @@ const updateCustomerById = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(customerId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "customerId không hợp lệ"
+            message: "customerID không hợp lệ"
         })
     }
 
@@ -300,7 +272,7 @@ const deleteCustomerById = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(customerId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "customerId không hợp lệ"
+            message: "customerID không hợp lệ"
         })
     }
 

@@ -1,6 +1,6 @@
 // Khai báo thư viện mongo
 const mongoose = require("mongoose")
-const uuid = require('uuid');
+const crypto = require('crypto');
 
 //Khai báo class Schema
 const Schema = mongoose.Schema

@@ -61,107 +61,104 @@ const createOrder = (request, response) => {
     })
 }
 
-const createOrderOfCustomer = (request, response) => {
+const createOrderOfCustomer = async (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const customerId = request.params.customerId;
-    const { orderDate, shippedDate, note, orderDetails, cost } = request.body.order
-    const { firstName, lastName, email, country, city, address, phone } = request.body.customer
-    // B2: Validate dữ liệu
-    if (!mongoose.Types.ObjectId.isValid(orderDetail)) {
+    const { shippedDate, note, cost } = request.body
+    // B2: Validate 
+    // Validate the data
+    const { error } = await validateOrder(customerId, shippedDate, cost);
+    console.log(error)
+    if (error) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "Product không hợp lệ"
+            message: error
         })
     }
 
-    if (!(Number.isInteger(body.cost) && body.cost >= 0)) {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "Quantity không hợp lệ"
-        })
-    }
-
-    // B3: Thao tác với cơ sở dữ liệu
+    // B3: Tạo một order mới
     const newOrder = {
         _id: mongoose.Types.ObjectId(),
-        // orderCode: orderCode,
-        orderDate: orderDate,
         shippedDate: shippedDate,
         note: note,
-        orderDetails: orderDetails,
         cost: cost
     }
 
-    const newCustomer = {
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
-        country: country,
-        city: city,
-        address: address,
-        phone: phone
+    //B4: Tạo order V2
+    try {
+        // Create the order in the database
+        const createdOrder = await orderModel.create(newOrder);
+
+        // Add the order ID to the customer's order list
+        await customerModel.findByIdAndUpdate(customerId, {
+            $push: {
+                orders: createdOrder._id
+            }
+        }, { new: true });
+
+        // Return success response
+        return response.status(201).json({
+            status: "Create Order Successfully",
+            data: createdOrder,
+        });
+    } catch (err) {
+        return response.status(500).json({
+            status: "Internal server error",
+            message: err.message
+        });
+    }
+    // B4: Tạo Order V2
+    // orderModel.create(newOrder, (error, data) => {
+    //     if (error) {
+    //         return response.status(500).json({
+    //             status: "Internal server error",
+    //             message: error.message
+    //         })
+    //     }
+    //     // Thêm id của Order mới vào mảng Customer của Customer đã chọn
+    //     customerModel.findByIdAndUpdate(customerId, {
+    //         $push: {
+    //             order: data._id
+    //         }
+    //     }, (err, updatedOrder) => {
+    //         if (err) {
+    //             return response.status(500).json({
+    //                 status: "Internal server error",
+    //                 message: err.message
+    //             })
+    //         }
+
+    //         return response.status(201).json({
+    //             status: "Create Order  Successfully",
+    //             data: data
+    //         })
+    //     })
+    // })
+
+};
+
+const validateOrder = (customerId, shippedDate, cost) => {
+    const errors = {};
+    // Validate customerId
+    if (!mongoose.Types.ObjectId.isValid(customerId)) {
+        errors.customerId = 'Invalid customer Id';
     }
 
-    const condition = { email: email };
-    customerModel
-        .findOne(condition)
-        .exec((error, existCustomer) => {
-            if (error) {
-                return response.status(500).json({
-                    status: "Internal server error find ExistCustomer ",
-                    message: error.message
-                })
-            } else {
-                if (!existCustomer) {
-                    // Nếu Customer không tồn tại
-                    customerModel.create(newCustomer, (errCreateCustomer, createdCustomer) => {
-                        if (errCreateCustomer) {
-                            return response.status(500).json({
-                                status: "Internal server error: errCreateCustomer",
-                                message: errCreateCustomer.message
-                            })
-                        } else {
-                            orderModel.create(newOrder, (errCreateOrder, createdOrder) => {
-                                if (errCreateOrder) {
-                                    return response.status(500).json({
-                                        status: "Internal server error: errCreateCustomer",
-                                        message: errCreateCustomer.message
-                                    })
-                                } else {
-                                    createdCustomer.orders.push(createdOrder._id)
-                                    return response.status(201).json({
-                                        status: "Create Drink successfully",
-                                        data: createdOrder
-                                    })
-                                }
-                            })
-                        }
-                    })
-                } else {
-                    //Nếu customer đã tồn tại
-                    orderModel.create(newOrder, (errCreateOrder, createdOrder) => {
-                        if (errCreateOrder) {
-                            return response.status(500).json({
-                                status: "Internal server error errCreateOrder- ExistCustomer",
-                                message: errCreateOrder.message
-                            })
-                        } else {
-                            existCustomer.orders.push(createdOrder._id)
-                            console.log("createdOrder Succesfully")
-                            return response.status(201).json({
-                                status: "Internal server error",
-                                order: createdOrder,
-                                customer: existCustomer,
-                                orderCode: createdOrder.orderCode,
-                            })
-                        }
-                    })
+    // Validate shippedDate
+    if (shippedDate && !Date.parse(shippedDate)) {
+        errors.shippedDate = 'Invalid shipped date';
+    }
 
-                }
-            }
+    // Validate cost
+    if (!cost || typeof cost !== 'number') {
+        errors.cost = 'Invalid cost';
+    }
 
-        })
-};
+    return {
+        //Kiểm tra có lỗi xảy ra nếu có trả về mảng lỗi, không lỗi trả về null
+        error: Object.keys(errors).length > 0 ? errors : null
+    };
+}
 
 const getOrderById = (request, response) => {
     // B1: Chuẩn bị dữ liệu
@@ -171,7 +168,7 @@ const getOrderById = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(customerId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "orderId không hợp lệ"
+            message: "orderID không hợp lệ"
         })
     }
 
@@ -200,7 +197,7 @@ const updateOrderById = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(customerId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "orderId không hợp lệ"
+            message: "orderID không hợp lệ"
         })
     }
 
@@ -253,7 +250,7 @@ const deleteOrderById = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(customerId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "orderId không hợp lệ"
+            message: "orderID không hợp lệ"
         })
     }
 
@@ -279,5 +276,6 @@ module.exports = {
     updateOrderById,
     deleteOrderById,
     createOrderOfCustomer,
-    getAllOrderOfCustomer
+    getAllOrderOfCustomer,
+    validateOrder
 }

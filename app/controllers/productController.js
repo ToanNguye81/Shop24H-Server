@@ -4,59 +4,97 @@ const mongoose = require("mongoose");
 // Import Module Product Model
 const productModel = require("../models/productModel");
 
-const getAllProduct = (request, response) => {
-    console.log(request.query)
-    // B1: Chuẩn bị dữ liệu
-    let limit = request.query.limit;
-    let start = request.query.start;
-    let brand = request.query.brand;
-    let maxPrice = request.query.maxPrice;
-    let minPrice = request.query.minPrice;
-    let ordinal = request.query.ordinal;
-    let category = request.query.category;
-    let page = request.query.page;
-    let skip = page * limit
-    if (page !== "") {
-        start = skip;
-    }
+// const getAllProduct = (request, response) => {
+//     console.log(request.query)
+//     // B1: Chuẩn bị dữ liệu
+//     let limit = request.query.limit;
+//     let start = request.query.start;
+//     let brand = request.query.brand;
+//     let maxPrice = request.query.maxPrice;
+//     let minPrice = request.query.minPrice;
+//     let ordinal = request.query.ordinal;
+//     let category = request.query.category;
+//     let page = request.query.page;
+//     let skip = page * limit
+//     if (page) {
+//         start = skip;
+//     }
 
-    //Tạo điều kiện lọc
-    let condition = {}
-    if (brand) {
-        condition.brand = { $regex: brand }
-    }
-    if (minPrice) {
-        condition.promotionPrice = { $gte: minPrice }
-    }
-    if (maxPrice) {
-        condition.promotionPrice = { ...condition.promotionPrice, $lte: maxPrice }
-    }
-    if (category) {
-        condition.category = { $regex: category }
-    }
-    //Tạo diều kiện sort
-    let sortCondition = [{}, { promotionPrice: "asc" }, { promotionPrice: "desc" }, { name: "asc" }, { name: "desc" }]
-    // B2: Validate dữ liệu
+//     //Tạo điều kiện lọc
+//     let condition = {}
+//     if (brand) {
+//         condition.brand = { $regex: brand }
+//     }
+//     if (minPrice) {
+//         condition.promotionPrice = { $gte: minPrice }
+//     }
+//     if (maxPrice) {
+//         condition.promotionPrice = { ...condition.promotionPrice, $lte: maxPrice }
+//     }
+//     if (category) {
+//         condition.category = { $regex: category }
+//     }
+//     //Tạo diều kiện sort
+//     let sortCondition = [{}, { promotionPrice: "asc" }, { promotionPrice: "desc" }, { name: "asc" }, { name: "desc" }]
+//     // B2: Validate dữ liệu
 
-    // B3: Gọi Model tạo dữ liệu
-    productModel
-        .find(condition)
-        .sort(sortCondition[ordinal])
-        .skip(start)
-        .limit(limit)
-        .exec((error, data) => {
-            if (error) {
-                return response.status(500).json({
-                    status: "Internal server error",
-                    message: error.message
-                })
-            }
-            return response.status(200).json({
-                status: "Get all Product successfully",
-                products: data
-            })
-        })
-}
+//     // B3: Gọi Model tạo dữ liệu
+//     productModel
+//         .find(condition)
+//         .sort(sortCondition[ordinal])
+//         .skip(start)
+//         .limit(limit)
+//         .exec((error, data) => {
+//             if (error) {
+//                 return response.status(500).json({
+//                     status: "Internal server error",
+//                     message: error.message
+//                 })
+//             }
+//             return response.status(200).json({
+//                 status: "Get all Product successfully",
+//                 products: data
+//             })
+//         })
+// }
+
+const getAllProduct = async (request, response) => {
+    try {
+        // B1: Prepare data
+        let { limit, page, condition, sortBy, sortOrder } = request.query;
+        limit = parseInt(limit) || 10;
+        page = parseInt(page) || 0;
+        sortBy = sortBy || 'createdAt';
+        sortOrder = sortOrder || 'desc';
+        const skip = limit * page;
+        const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
+        condition = condition ? JSON.parse(condition) : {};
+        console.log(condition)
+
+        // B2: Call the Model to create data
+        const totalCount = await productModel.countDocuments(condition);
+        const data = await productModel
+            .find(condition)
+            .skip(skip)
+            .limit(limit)
+            .sort(sort)
+            .exec();
+
+        // B3: Get total count
+        // Return success response
+        return response.status(200).json({
+            status: "Get all products successfully",
+            totalCount: totalCount,
+            data: data
+        });
+    } catch (error) {
+        // Return error response
+        return response.status(500).json({
+            status: "Internal server error",
+            message: error.message
+        });
+    }
+};
 
 const createProduct = (request, response) => {
     // B1: Chuẩn bị dữ liệu

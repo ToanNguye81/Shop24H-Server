@@ -1,92 +1,84 @@
 // Import thư viện Mongoose
+const { request } = require("express");
 const mongoose = require("mongoose");
 
 // Import Module Customer Model
 const customerModel = require("../models/customerModel");
 
-const createCustomer = (request, response) => {
-    // B1: Chuẩn bị dữ liệu
-    const body = request.body;
-
-    // B2: Validate dữ liệu
-    // Kiểm tra lastName có hợp lệ hay không
-    if (!body.lastName.trim()) {
+const createCustomer = async (request, response) => {
+    // B1: Prepare data
+    const { lastName, firstName, country, city, phone, email, address } = request.body;
+    const fields = ['lastName', 'firstName', 'country', 'city', 'email', 'address'];
+    // console.log(request.body['lastName'])=> console.log(lastName)
+    
+    // B2: Valid data Version 2 - not null
+    if (!(phone!==undefined && phone.trim().length === 10 && !isNaN(phone.trim()))) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "lastName không hợp lệ"
-        })
-    }
-    // Kiểm tra firstName có hợp lệ hay không
-    if (!body.firstName.trim()) {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "firstName không hợp lệ"
-        })
-    }
-    //Kiểm tra email có hợp lệ không
-    if (!body.email.trim()) {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "email không hợp lệ"
-        })
-    }
-    //Kiểm tra address có hợp lệ không
-    if (!body.address.trim()) {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "address không hợp lệ"
-        })
-    }
-    //Kiểm tra country có hợp lệ không
-    if (!body.country.trim()) {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "country không hợp lệ"
-        })
-    }
-    //Kiểm tra city có hợp lệ không
-    if (!body.city.trim()) {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "city không hợp lệ"
-        })
-    }
-    //Kiểm tra orders có hợp lệ không
-    if (body.orders !== undefined && !mongoose.Types.ObjectId.isValid(body.orders)) {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "orders không hợp lệ"
-        })
+            message: "phone không hợp lệ"
+        });
     }
 
-    // B3: Gọi Model tạo dữ liệu
-    const newCustomer = {
-        _id: mongoose.Types.ObjectId(),
-        lastName: body.lastName,
-        firstName: body.firstName,
-        country: body.country,
-        city: body.city,
-        phone: body.phone,
-        email: body.email,
-        address: body.address,
-        // orders: body.orders,
-    }
-
-    customerModel.create(newCustomer, (error, data) => {
-        if (error) {
-            return response.status(500).json({
-                status: "Internal server error",
-                message: error.message
-            })
+    for (const field of fields) {
+        if (!request.body[field].trim()) {
+            return response.status(400).json({
+                status: "Bad Request",
+                message: `${field} is invalid`
+            });
         }
+    }
 
-        return response.status(201).json({
-            status: "Create Customer successfully",
-            data: data
+    try {
+        // B3: Check if customer with phone already exists
+        const customer = await customerModel.findOne({ phone: phone });
+
+        if (customer) {
+            // B4: If customer exists, update customer info
+            customer.lastName = lastName;
+            customer.firstName = firstName;
+            customer.country = country;
+            customer.city = city;
+            customer.phone = phone;
+            customer.email = email;
+            customer.address = address;
+
+            const updatedCustomer = await customer.save();
+
+            return response.status(200).json({
+                status: "Success",
+                message: "Customer updated successfully",
+                data: updatedCustomer
+            });
+        }
+        else {
+            // B5: If customer does not exist, create new customer
+            const newCustomer = new customerModel({
+                _id: mongoose.Types.ObjectId(),
+                lastName,
+                firstName,
+                country,
+                city,
+                phone,
+                email,
+                address
+            });
+
+            const result = await customerModel.create(newCustomer);
+
+            return response.status(201).json({
+                status: "Create customer successfully",
+                data: result
+            });
+        }
+    }
+    catch (error) {
+        // Return error response
+        return response.status(500).json({
+            status: "Internal server error",
+            message: error.message
         })
-    })
+    }
 }
-
 
 const getAllCustomer = async (request, response) => {
     try {
@@ -157,65 +149,60 @@ const getCustomerById = (request, response) => {
 const updateCustomerById = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const customerId = request.params.customerId;
-    const body = request.body;
+    const { lastName, firstName, country, city, phone, email, address } = request.body;
+    const fields = ['lastName', 'firstName', 'email', 'address', 'phone'];
 
-    // B2: Validate dữ liệu
+    // B2: Validate data
     if (!mongoose.Types.ObjectId.isValid(customerId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "customerID không hợp lệ"
+            message: "customerID is invalid"
         })
     }
 
-    if (body.lastName !== undefined && body.lastName.trim() === "") {
+    if (lastName !== undefined && lastName.trim() === "") {
         return response.status(400).json({
             status: "Bad Request",
             message: "lastName không hợp lệ"
         })
     }
 
-    if (body.phone !== undefined && body.phone.trim() === "") {
+    if (phone!==undefined && (phone.trim().length !== 10 || isNaN(phone.trim()))) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "phone không hợp lệ"
-        })
+            message: "phone không hợp lệ update"
+        });
     }
-    if (body.firstName !== undefined && body.firstName.trim() === "") {
+    
+    if (firstName !== undefined && firstName.trim() === "") {
         return response.status(400).json({
             status: "Bad Request",
             message: "firstName không hợp lệ"
         })
     }
 
-    if (body.email !== undefined && body.email.trim() === "") {
+    if (email !== undefined && email.trim() === "") {
         return response.status(400).json({
             status: "Bad Request",
             message: "email không hợp lệ"
         })
     }
 
-    if (body.country !== undefined && body.country.trim() === "") {
+    if (country !== undefined && country.trim() === "") {
         return response.status(400).json({
             status: "Bad Request",
             message: "country không hợp lệ"
         })
     }
 
-    if (body.city !== undefined && body.city.trim() === "") {
+    if (city !== undefined && city.trim() === "") {
         return response.status(400).json({
             status: "Bad Request",
             message: "city không hợp lệ"
         })
     }
 
-    if (body.address !== undefined && body.address.trim() === "") {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "address không hợp lệ"
-        })
-    }
-
-    if (body.orders !== undefined && !mongoose.Types.ObjectId.isValid(body.orders)) {
+    if (address !== undefined && address.trim() === "") {
         return response.status(400).json({
             status: "Bad Request",
             message: "address không hợp lệ"
@@ -225,31 +212,27 @@ const updateCustomerById = (request, response) => {
     // B3: Gọi Model update dữ liệu
     const updateCustomer = {}
 
-    if (body.lastName !== undefined) {
-        updateCustomer.lastName = body.lastName
+    if (lastName !== undefined) {
+        updateCustomer.lastName = lastName
     }
 
-    if (body.firstName !== undefined) {
-        updateCustomer.firstName = body.firstName
+    if (firstName !== undefined) {
+        updateCustomer.firstName = firstName
     }
 
-    if (body.email !== undefined) {
-        updateCustomer.email = body.email
+    if (email !== undefined) {
+        updateCustomer.email = email
     }
 
-    if (body.address !== undefined) {
-        updateCustomer.address = body.address
+    if (address !== undefined) {
+        updateCustomer.address = address
     }
 
-    if (body.phone !== undefined) {
-        updateCustomer.phone = body.phone
+    if (phone !== undefined) {
+        updateCustomer.phone = phone
     }
 
-    if (body.orders !== undefined) {
-        updateCustomer.orders = body.orders
-    }
-
-    customerModel.findByIdAndUpdate(customerId, updateCustomer, (error, data) => {
+    customerModel.findByIdAndUpdate(customerId, updateCustomer,{new: true}, (error, data) => {
         if (error) {
             return response.status(500).json({
                 status: "Internal server error",
@@ -275,6 +258,7 @@ const deleteCustomerById = (request, response) => {
             message: "customerID không hợp lệ"
         })
     }
+
 
     // B3: Gọi Model tạo dữ liệu
     customerModel.findByIdAndDelete(customerId, (error, data) => {

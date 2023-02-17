@@ -32,6 +32,10 @@ const orderSchema = new Schema({
         type: Number,
         default: 0
     },
+    status:{
+        type: Boolean,
+        default: false
+    }
 }, {
     //Lưu dấu bảng ghi được cập nhật vào thời gian nào
     timestamps: true

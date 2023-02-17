@@ -83,7 +83,8 @@ const createOrder = (request, response) => {
 const createOrderOfCustomer = async (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const customerId = request.params.customerId;
-    const { shippedDate, note, cost } = request.body
+    const { shippedDate, note, cost,orderDetails } = request.body
+    console.log(request.body)
     // B2: Validate 
     // Validate the data
     const { error } = await validateOrder(customerId, shippedDate, cost);
@@ -100,7 +101,7 @@ const createOrderOfCustomer = async (request, response) => {
         _id: mongoose.Types.ObjectId(),
         shippedDate: shippedDate,
         note: note,
-        cost: cost
+        cost: cost,
     }
 
     //B4: Tạo order V2
@@ -126,7 +127,7 @@ const createOrderOfCustomer = async (request, response) => {
             message: err.message
         });
     }
-    // B4: Tạo Order V2
+    // B4: Tạo Order V1
     // orderModel.create(newOrder, (error, data) => {
     //     if (error) {
     //         return response.status(500).json({
@@ -169,7 +170,7 @@ const validateOrder = (customerId, shippedDate, cost) => {
     }
 
     // Validate cost
-    if (!cost || typeof cost !== 'number') {
+    if (cost !== undefined && typeof cost !== 'number') {
         errors.cost = 'Invalid cost';
     }
 
@@ -228,12 +229,6 @@ const updateOrderById = (request, response) => {
     }
 
 
-    if (body.phanTramGiamGia !== undefined && (isNaN(body.phanTramGiamGia) || body.phanTramGiamGia < 0)) {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "phanTramGiamGia không hợp lệ"
-        })
-    }
 
     // B3: Gọi Model tạo dữ liệu
     const updateOrder = {}

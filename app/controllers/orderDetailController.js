@@ -60,7 +60,7 @@ const createOrderDetail = (request, response) => {
     if (!body.quantity) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "email không hợp lệ"
+            message: "quantity không hợp lệ"
         })
     }
 
@@ -227,6 +227,7 @@ const createOrderDetailOfOrder = async (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const orderId = request.params.orderId;
     const { product, quantity } = request.body;
+    console.log(orderId)
     console.log(request.body)
 
     // B2: Validate dữ liệu
@@ -258,7 +259,7 @@ const createOrderDetailOfOrder = async (request, response) => {
 
         // Return success response
         return response.status(201).json({
-            status: "Create Order Successfully",
+            status: "Create Order Detail Successfully",
             data: createdOrderDetail,
         });
     } catch (err) {
@@ -311,7 +312,7 @@ const validateOrderDetail = (pramOrderId, paramProduct, paramQuantity) => {
 
     // Validate paramQuantity
     if (!paramQuantity || typeof paramQuantity !== 'number' || paramQuantity < 0) {
-        errors.quantity = 'Invalid cost';
+        errors.quantity = 'Invalid Quantity';
     }
 
     return {

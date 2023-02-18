@@ -83,7 +83,7 @@ const createOrder = (request, response) => {
 const createOrderOfCustomer = async (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const customerId = request.params.customerId;
-    const { shippedDate, note, cost,orderDetails } = request.body
+    const { shippedDate, note, cost } = request.body
     console.log(request.body)
     // B2: Validate 
     // Validate the data

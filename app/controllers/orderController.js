@@ -43,9 +43,29 @@ const getAllOrder = async (request, response) => {
     }
 }
 
-const getAllOrderOfCustomer = (request, response) => {
-
-}
+const getAllOrderOfCustomer = async (request, response) => {
+    try {
+      // B1: Chuẩn bị dữ liệu
+      const customerId = request.params.customerId;
+  
+      // B2: Gọi Model tìm kiếm tất cả đơn hàng của khách hàng
+      const orders = await orderModel.find({
+        customer: mongoose.Types.ObjectId(customerId)
+      }).populate("orderDetails").exec();
+  
+      // B3: Trả về kết quả
+      return response.status(200).json({
+        status: "Get all orders of customer successfully",
+        data: orders
+      });
+    } catch (error) {
+      // B4: Trả về thông báo lỗi nếu có lỗi xảy ra
+      return response.status(500).json({
+        status: "Internal server error",
+        message: error.message
+      });
+    }
+  };
 
 const createOrder = (request, response) => {
     // B1: Chuẩn bị dữ liệu

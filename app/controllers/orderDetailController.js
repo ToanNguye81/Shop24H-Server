@@ -193,35 +193,58 @@ const deleteOrderDetailById = (request, response) => {
         })
     })
 }
-const getAllOrderDetailOfOrder = (request, response) => {
-    // B1: Chuẩn bị dữ liệu
-    const orderId = request.params.orderId;
+// const getAllOrderDetailOfOrder = (request, response) => {
+//     // B1: Chuẩn bị dữ liệu
+//     const orderId = request.params.orderId;
 
-    // B2: Validate dữ liệu
-    if (!mongoose.Types.ObjectId.isValid(orderId)) {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "Course Id không hợp lệ"
-        })
+//     // B2: Validate dữ liệu
+//     if (!mongoose.Types.ObjectId.isValid(orderId)) {
+//         return response.status(400).json({
+//             status: "Bad Request",
+//             message: "Order Id không hợp lệ"
+//         })
+//     }
+
+//     // B3: Thao tác với cơ sở dữ liệu
+//     orderModel.findById(orderId)
+//         .populate("OrderDetail")
+//         .exec((error, data) => {
+//             if (error) {
+//                 return response.status(500).json({
+//                     status: "Internal server error",
+//                     message: error.message
+//                 })
+//             }
+
+//             return response.status(200).json({
+//                 status: "Get all detailOrder of order successfully",
+//                 data: data
+//             })
+//         })
+// }
+const getAllOrderDetailOfOrder = async (request, response) => {
+    try {
+      // Extract order ID from request parameters
+      const orderId = request.params.orderId;
+  
+      // Find order details with matching order ID
+      const orderDetails = await orderDetailModel.find({
+        order: mongoose.Types.ObjectId(orderId),
+      }).populate("product").exec();
+  
+      // Return the matching order details
+      return response.status(200).json({
+        status: "Get all order details of order successfully",
+        data: orderDetails,
+      });
+    } catch (error) {
+      // Return an error message if there was a problem
+      return response.status(500).json({
+        status: "Internal server error",
+        message: error.message,
+      });
     }
-
-    // B3: Thao tác với cơ sở dữ liệu
-    orderModel.findById(orderId)
-        .populate("orderDetail")
-        .exec((error, data) => {
-            if (error) {
-                return response.status(500).json({
-                    status: "Internal server error",
-                    message: error.message
-                })
-            }
-
-            return response.status(200).json({
-                status: "Get all detailOrder of order successfully",
-                data: data
-            })
-        })
-}
+  };
 
 const createOrderDetailOfOrder = async (request, response) => {
     // B1: Chuẩn bị dữ liệu

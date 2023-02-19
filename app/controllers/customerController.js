@@ -10,15 +10,15 @@ const createCustomer = async (request, response) => {
     const { lastName, firstName, country, city, phone, email, address } = request.body;
     const fields = ['lastName', 'firstName', 'country', 'city', 'email', 'address'];
     // console.log(request.body['lastName'])=> console.log(lastName)
-    
+
     // B2: Valid data Version 2 - not null and phone
-    if (!(phone!==undefined && phone.trim().length === 10 && !isNaN(phone.trim()))) {
+    if (!(phone !== undefined && phone.trim().length === 10 && !isNaN(phone.trim()))) {
         return response.status(400).json({
             status: "Bad Request",
             message: "phone không hợp lệ"
         });
     }
-    
+
     for (const field of fields) {
         if (!request.body[field].trim()) {
             return response.status(400).json({
@@ -100,6 +100,18 @@ const getAllCustomer = async (request, response) => {
             .skip(skip)
             .limit(limit)
             .sort(sort)
+            // V1 Get Detail
+            .populate({
+                path: 'orders',
+                select:"orderCode",
+                populate: {
+                    path: 'orderDetails',
+                    populate: {
+                        path: 'product',
+                        model: 'Product'
+                    }
+                }
+            })
             .exec();
 
         // B3: Get total count
@@ -167,13 +179,13 @@ const updateCustomerById = (request, response) => {
         })
     }
 
-    if (phone!==undefined && (phone.trim().length !== 10 || isNaN(phone.trim()))) {
+    if (phone !== undefined && (phone.trim().length !== 10 || isNaN(phone.trim()))) {
         return response.status(400).json({
             status: "Bad Request",
             message: "phone không hợp lệ update"
         });
     }
-    
+
     if (firstName !== undefined && firstName.trim() === "") {
         return response.status(400).json({
             status: "Bad Request",
@@ -232,7 +244,7 @@ const updateCustomerById = (request, response) => {
         updateCustomer.phone = phone
     }
 
-    customerModel.findByIdAndUpdate(customerId, updateCustomer,{new: true}, (error, data) => {
+    customerModel.findByIdAndUpdate(customerId, updateCustomer, { new: true }, (error, data) => {
         if (error) {
             return response.status(500).json({
                 status: "Internal server error",

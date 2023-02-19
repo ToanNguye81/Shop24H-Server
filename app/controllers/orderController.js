@@ -25,6 +25,13 @@ const getAllOrder = async (request, response) => {
             .skip(skip)
             .limit(limit)
             .sort(sort)
+            .populate({
+                path: 'orderDetails',
+                populate: {
+                    path: 'product',
+                    model: 'Product'
+                }
+            })
             .exec();
 
         // B3: Get total count
@@ -43,29 +50,122 @@ const getAllOrder = async (request, response) => {
     }
 }
 
+
+// getAllOrder Ver2
+// const getAllOrder = async (request, response) => {
+//     try {
+//         // B1: Prepare data
+//         let { limit, page, condition, sortBy, sortOrder } = request.query;
+//         limit = parseInt(limit) || 10;
+//         page = parseInt(page) || 0;
+//         sortBy = sortBy || "createdAt";
+//         sortOrder = sortOrder || "desc";
+//         const skip = limit * page;
+//         const sort = { [sortBy]: sortOrder === "asc" ? 1 : -1 };
+//         condition = condition ? JSON.parse(condition) : {};
+//         console.log(condition);
+
+//         // B2: Call the Model to create data
+//         const totalCount = await orderModel.countDocuments(condition);
+//         const data = await orderModel
+//             .find(condition)
+//             //     .populate({
+//             //     path: 'customer',
+//             //     model: 'Customer'
+//             // })
+//             // .populate({
+//             //   path: "orderDetails",
+//             //   populate: {
+//             //     path: "product",
+//             //     // select: "name promotionPrice buyPrice"
+//             //   }
+//             // })
+//             .skip(skip)
+//             .limit(limit)
+//             .sort(sort)
+//             .exec();
+
+//         // B3: Get total count
+//         // Return success response
+//         return response.status(200).json({
+//             status: "Get all orders successfully",
+//             totalCount: totalCount,
+//             data: data
+//         });
+//     } catch (error) {
+//         // Return error response
+//         return response.status(500).json({
+//             status: "Internal server error",
+//             message: error.message
+//         });
+//     }
+// };
+
 const getAllOrderOfCustomer = async (request, response) => {
     try {
-      // B1: Chuẩn bị dữ liệu
-      const customerId = request.params.customerId;
-  
-      // B2: Gọi Model tìm kiếm tất cả đơn hàng của khách hàng
-      const orders = await orderModel.find({
-        customer: mongoose.Types.ObjectId(customerId)
-      }).populate("orderDetails").exec();
-  
-      // B3: Trả về kết quả
-      return response.status(200).json({
-        status: "Get all orders of customer successfully",
-        data: orders
-      });
+        // B1: Chuẩn bị dữ liệu
+        const customerId = request.params.customerId;
+
+        // B2: Gọi Model tìm kiếm tất cả đơn hàng của khách hàng
+        const orders = await orderModel.find({
+            customer: mongoose.Types.ObjectId(customerId)
+        }).populate({
+            path: 'orderDetails',
+            populate: {
+                path: 'product',
+                model: 'Product'
+            }
+        }).exec();
+
+        // B3: Trả về kết quả
+        return response.status(200).json({
+            status: "Get all orders of customer successfully",
+            data: orders
+        });
     } catch (error) {
-      // B4: Trả về thông báo lỗi nếu có lỗi xảy ra
-      return response.status(500).json({
-        status: "Internal server error",
-        message: error.message
-      });
+        // B4: Trả về thông báo lỗi nếu có lỗi xảy ra
+        return response.status(500).json({
+            status: "Internal server error",
+            message: error.message
+        });
     }
-  };
+};
+
+// const getAllOrderOfCustomer = async (request, response) => {
+//     try {
+//         // Extract customerId from request params
+//         const { customerId } = request.params;
+
+//         // Retrieve customer information
+//         const customer = await customerModel.findById(mongoose.Types.ObjectId(customerId));
+
+//         // Retrieve all orders for the customer
+//         const orders = await orderModel.find({ customer: mongoose.Types.ObjectId(customerId) })
+//             .populate({
+//                 path: 'orderDetails',
+//                 populate: {
+//                     path: 'product',
+//                     model: 'Product'
+//                 }
+//             })
+//             .exec();
+
+//         // Return response with customer information and orders data
+//         return response.status(200).json({
+//             status: "Get all orders of customer successfully",
+//             data: {
+//                 customer: customer,
+//                 orders: orders
+//             }
+//         });
+//     } catch (error) {
+//         // Return error message if any error occurred
+//         return response.status(500).json({
+//             status: "Internal server error",
+//             message: error.message
+//         });
+//     }
+// };
 
 const createOrder = (request, response) => {
     // B1: Chuẩn bị dữ liệu
@@ -147,34 +247,7 @@ const createOrderOfCustomer = async (request, response) => {
             message: err.message
         });
     }
-    // B4: Tạo Order V1
-    // orderModel.create(newOrder, (error, data) => {
-    //     if (error) {
-    //         return response.status(500).json({
-    //             status: "Internal server error",
-    //             message: error.message
-    //         })
-    //     }
-    //     // Thêm id của Order mới vào mảng Customer của Customer đã chọn
-    //     customerModel.findByIdAndUpdate(customerId, {
-    //         $push: {
-    //             order: data._id
-    //         }
-    //     }, (err, updatedOrder) => {
-    //         if (err) {
-    //             return response.status(500).json({
-    //                 status: "Internal server error",
-    //                 message: err.message
-    //             })
-    //         }
-
-    //         return response.status(201).json({
-    //             status: "Create Order  Successfully",
-    //             data: data
-    //         })
-    //     })
-    // })
-
+    
 };
 
 const validateOrder = (customerId, shippedDate, cost) => {

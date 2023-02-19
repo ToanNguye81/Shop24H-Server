@@ -25,6 +25,7 @@ const getAllOrderDetail =async (request, response) => {
             .skip(skip)
             .limit(limit)
             .sort(sort)
+            // .populate("product")
             .exec();
 
         // B3: Get total count

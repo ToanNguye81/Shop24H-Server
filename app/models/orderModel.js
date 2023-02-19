@@ -35,11 +35,12 @@ const orderSchema = new Schema({
     status:{
         type: Boolean,
         default: false
-    }
+    },
 }, {
     //Lưu dấu bảng ghi được cập nhật vào thời gian nào
     timestamps: true
 })
+
 
 // Biên dịch một Order Model từ orderSchema
 module.exports = mongoose.model("Order", orderSchema)

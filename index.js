@@ -25,12 +25,6 @@ app .use(cors())
 // Khai báo để dử dụng UTF8
 app.use(express.urlencoded({extended: true}))
 
-// // Kết nối với MongoDB:
-// mongoose.connect("mongodb://127.0.0.1:27017/CRUD_Shop24h", function(error) {
-//     if (error) throw error;
-//     console.log('Successfully MongoDB connected');
-// })
-
 mongoose.connect(process.env.MONGODB_URI, (err) => {
     if (err) {
       console.error(err);

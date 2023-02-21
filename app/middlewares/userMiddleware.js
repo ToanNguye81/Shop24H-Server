@@ -1,61 +1,83 @@
 
-// //Ver 1====================================================
-// const jwt = require('jsonwebtoken');
-
-// const verifyToken = (req, res, next) => {
-//   const authHeader = req.headers.authorization;
-//   const token = authHeader && authHeader.split(' ')[1];
-
-//   if (!token) {
-//     return res.status(401).json({ message: 'Token not found' });
-//   }
-
-//   try {
-//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-//     req.user = decoded;
-//     next();
-//   } catch (error) {
-//     return res.status(403).json({ message: 'Invalid token' });
-//   }
-// };
-
-// const checkRole = (role) => (req, res, next) => {
-//   if (req.user.role !== role) {
-//     return res.status(403).json({ message: 'Forbidden' });
-//   }
-//   next();
-// };
-
-// module.exports = { verifyToken, checkRole };
-
-
-//Ver 2 ==================================================
-
+const { body, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
+const User = require('../models/userModel');
 
-// Middleware to protect routes that require authentication and authorization
-export const auth = (req, res, next) => {
-  const token = req.header('x-auth-token');
+//Validate SignUp
+const validateSignup = [
+  body('email').isEmail(),
+  body('password').isLength({ min: 6 })
+];
 
-  if (!token) {
-    return res.status(401).json({ error: 'No token, authorization denied' });
-  }
+//Validate Login
+const validateLogin = [
+  body('email').isEmail(),
+  body('password').isLength({ min: 6 })
+];
 
+//authenticate User - xác thực người dùng
+const authenticateUser = (req, res, next) => {
+  // console.log(req.cookies.token)
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded.user;
-    next();
-  } catch (err) {
-    res.status(401).json({ error: 'Token is not valid' });
+    // const token = req.params.token
+    const token = req.cookies.token
+    const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+    const userId = decodedToken.userId;
+    // console.log(req.body.userId)
+    if (req.body.userId && req.body.userId !== userId) {
+      throw 'Invalid user ID';
+    } else {
+      req.userId = userId;
+      console.log("authenticate User success")
+      next();
+    }
+  } catch (error) {
+    res.status(401).json({ error: error | 'Invalid request' });
   }
 };
 
-// Middleware to restrict routes to certain roles
-export const restrictTo = (...roles) => {
+
+//Authorize User
+const authorizeUser = (allowedRoles) => {
   return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ error: 'You do not have permission to perform this action' });
-    }
-    next();
-  };
+    User.findById(req.userId)
+      .then(user => {
+        if (!user) {
+          console.log("Không tìm thấy user")
+          return res.status(404).json({ message: 'User not found' });
+        }
+        if (allowedRoles.includes(user.role)) {
+          console.log("Cho phép truy cập")
+          next();
+        } else {
+          console.log("Bạn không có quyền truy cập")
+          res.status(403).json({ message: 'Access denied' });
+        }
+      })
+      .catch(err => {
+        res.status(500).json({ message: err.message });
+      });
+  }
+};
+
+// // validate 
+// const validate = (req, res, next) => {
+//   const errors = validationResult(req);
+//   if (errors.isEmpty()) {
+//     return next();
+//   }
+//   const extractedErrors = [];
+//   errors.array().map(err => extractedErrors.push({ [err.param]: err.msg }));
+
+//   return res.status(422).json({
+//     errors: extractedErrors,
+//   });
+// };
+
+module.exports = {
+  validateSignup,
+  validateLogin,
+  authenticateUser,
+  authorizeUser,
+  // validate
 };

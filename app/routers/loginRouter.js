@@ -7,8 +7,9 @@ const secretKey = 'mysecretkey';
 
 // Sample user data
 const users = [
-  { email: 'user1@example.com', password: 'password1' },
-  { email: 'user2@example.com', password: 'password2' },
+  { email: 'manager@vn.com', password: '123456',role: "manager" },
+  { email: 'employee@vn.com', password: '123456',role: "employee" },
+  { email: 'customer@vn.com', password: '123456',role: "customer" },
 ];
 
 // Login API endpoint

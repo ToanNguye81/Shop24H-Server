@@ -1,5 +1,7 @@
 // Khai báo thư viện ExpressJS
 const express = require("express");
+const userController = require("../controllers/userController");
+const userMiddleware = require("../middlewares/userMiddleware");
 
 // Khai báo router app
 const router = express.Router();
@@ -10,7 +12,11 @@ const customerMiddleware = require("../middlewares/customerMiddleware");
 // Import course controller
 const customerController = require("../controllers/customerController")
 
-router.get("/customers", customerMiddleware.getAllCustomerMiddleware, customerController.getAllCustomer)
+router.get("/customers",
+    customerMiddleware.getAllCustomerMiddleware,
+    userMiddleware.authenticateUser,
+    userMiddleware.authorizeUser(['manager']),
+    customerController.getAllCustomer)
 
 router.post("/customers", customerMiddleware.createCustomerMiddleware, customerController.createCustomer)
 

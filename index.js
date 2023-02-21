@@ -11,7 +11,6 @@ const customerRouter = require("./app/routers/customerRouter");
 const orderRouter = require("./app/routers/orderRouter");
 const orderDetailRouter = require("./app/routers/orderDetailRouter");
 const userRouter = require("./app/routers/userRouter");
-// const loginRouter = require("./app/routers/loginRouter");
 
 dotenv.config();
 
@@ -49,7 +48,6 @@ app.use("/", orderRouter);
 app.use("/", customerRouter);
 app.use("/", orderDetailRouter);
 app.use("/", userRouter);
-// app.use("/", loginRouter);
 
 app.listen(port, () => {
     console.log(`App listening at http://localhost:${port}`);

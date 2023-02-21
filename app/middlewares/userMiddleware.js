@@ -19,7 +19,6 @@ const validateLogin = [
 const authenticateUser = (req, res, next) => {
   // console.log(req.cookies.token)
   try {
-    // const token = req.params.token
     const token = req.cookies.token
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decodedToken.userId;

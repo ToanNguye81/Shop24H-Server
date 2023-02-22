@@ -24,7 +24,7 @@ const authenticateUser = (req, res, next) => {
     const userId = decodedToken.userId;
     // console.log(req.body.userId)
     if (req.body.userId && req.body.userId !== userId) {
-      throw 'Invalid user ID';
+      throw 'Invalid user Id';
     } else {
       req.userId = userId;
       console.log("authenticate User success")
@@ -49,8 +49,8 @@ const authorizeUser = (allowedRoles) => {
           console.log("Cho phép truy cập")
           next();
         } else {
-          console.log("Bạn không có quyền truy cập")
-          res.status(403).json({ message: 'Access denied' });
+          console.log("Access denied")
+          return res.status(403).json({ message: 'Access denied' });
         }
       })
       .catch(err => {

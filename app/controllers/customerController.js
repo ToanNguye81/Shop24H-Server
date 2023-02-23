@@ -103,14 +103,14 @@ const getAllCustomer = async (request, response) => {
             // V1 Get Detail
             .populate({
                 path: 'orders',
-                select:"orderCode",
-                populate: {
-                    path: 'orderDetails',
-                    populate: {
-                        path: 'product',
-                        model: 'Product'
-                    }
-                }
+                select: "orderCode"
+            //     populate: {
+            //         path: 'orderDetails',
+            //         populate: {
+            //             path: 'product',
+            //             model: 'Product'
+            //         }
+            //     }
             })
             .exec();
 

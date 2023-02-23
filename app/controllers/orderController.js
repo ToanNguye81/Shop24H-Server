@@ -16,7 +16,7 @@ const getAllOrder = async (request, response) => {
         const skip = limit * page;
         const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
         condition = condition ? JSON.parse(condition) : {};
-        console.log(condition)
+
 
         // B2: Call the Model to create data
         const totalCount = await orderModel.countDocuments(condition);
@@ -33,7 +33,6 @@ const getAllOrder = async (request, response) => {
                 }
             })
             .exec();
-
         // B3: Get total count
         // Return success response
         return response.status(200).json({
@@ -295,7 +294,7 @@ const getOrderById = (request, response) => {
         }
 
         return response.status(200).json({
-            status: "Get detail Order successfully",
+            status: "Get Order by Id successfully",
             data: data
         })
     })

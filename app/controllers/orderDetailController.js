@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 const orderDetailModel = require("../models/orderDetailModel");
 const orderModel = require("../models/orderModel");
 
-const getAllOrderDetail =async (request, response) => {
+const getAllOrderDetail = async (request, response) => {
     try {
         // B1: Prepare data
         let { limit, page, condition, sortBy, sortOrder } = request.query;
@@ -25,8 +25,12 @@ const getAllOrderDetail =async (request, response) => {
             .skip(skip)
             .limit(limit)
             .sort(sort)
-            // .populate("product")
+            .populate({
+                path: 'product',
+                select: "name" 
+            })
             .exec();
+        console.log(data)
 
         // B3: Get total count
         // Return success response
@@ -223,29 +227,75 @@ const deleteOrderDetailById = (request, response) => {
 //             })
 //         })
 // }
+// const getAllOrderDetailOfOrder = async (request, response) => {
+//     try {
+//         // Extract order ID from request parameters
+//         const orderId = request.params.orderId;
+
+//         // Find order details with matching order ID
+//         const orderDetails = await orderDetailModel.find({
+//             order: mongoose.Types.ObjectId(orderId),
+//         }).populate("product").exec();
+
+//         // Return the matching order details
+//         return response.status(200).json({
+//             status: "Get all order details of order successfully",
+//             data: orderDetails,
+//         });
+//     } catch (error) {
+//         // Return an error message if there was a problem
+//         return response.status(500).json({
+//             status: "Internal server error",
+//             message: error.message,
+//         });
+//     }
+// };
+//Get all order of custoemr
 const getAllOrderDetailOfOrder = async (request, response) => {
     try {
-      // Extract order ID from request parameters
-      const orderId = request.params.orderId;
-  
-      // Find order details with matching order ID
-      const orderDetails = await orderDetailModel.find({
-        order: mongoose.Types.ObjectId(orderId),
-      }).populate("product").exec();
-  
-      // Return the matching order details
-      return response.status(200).json({
-        status: "Get all order details of order successfully",
-        data: orderDetails,
-      });
+        const orderId = request.params.orderId;
+        // B1: Prepare data
+        let { limit, page, condition, sortBy, sortOrder } = request.query;
+        limit = parseInt(limit) || 10;
+        page = parseInt(page) || 0;
+        sortBy = sortBy || 'createdAt';
+        sortOrder = sortOrder || 'desc';
+        const skip = limit * page;
+        const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
+        condition = condition ? JSON.parse(condition) : {};
+
+        const order = await orderModel
+            .findById(orderId)
+            .populate({
+                path: 'orderDetails',
+                populate: {
+                    path: "product",
+                    select: "name"
+                }
+            })
+            .exec()
+        console.log(order)
+
+        if (!order) {
+            return response.status(404).json({
+                status: 'Not found',
+                message: 'Not found order',
+            });
+        }
+        const orderDetails = await order.orderDetails
+        const totalCount = await orderDetails.length
+        return response.status(200).json({
+            status: 'Get all orderDetails of Order success',
+            data: orderDetails,
+            totalCount: totalCount
+        });
     } catch (error) {
-      // Return an error message if there was a problem
-      return response.status(500).json({
-        status: "Internal server error",
-        message: error.message,
-      });
+        return response.status(500).json({
+            status: 'Error server',
+            message: error.message,
+        });
     }
-  };
+};
 
 const createOrderDetailOfOrder = async (request, response) => {
     // B1: Chuẩn bị dữ liệu
@@ -267,14 +317,14 @@ const createOrderDetailOfOrder = async (request, response) => {
     const newOrderDetail = {
         _id: mongoose.Types.ObjectId(),
         product: product,
-        quantity:quantity
+        quantity: quantity
     }
     //B4: Tạo orderDetail V2
     try {
         // Create the order in the database
         const createdOrderDetail = await orderDetailModel.create(newOrderDetail);
 
-        // Add the order ID to the customer's order list
+        // Add the order ID to the order's order list
         await orderModel.findByIdAndUpdate(orderId, {
             $push: {
                 orderDetails: createdOrderDetail._id

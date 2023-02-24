@@ -18,7 +18,8 @@ const orderSchema = new Schema({
     },
     shippedDate: {
         type: Date,
-        require: false
+        default: Date.now()
+        // require: false
     },
     note: {
         type: String,

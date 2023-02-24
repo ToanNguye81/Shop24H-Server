@@ -45,29 +45,41 @@ const getAllOrder = async (request, response) => {
 const getAllOrderOfCustomer = async (request, response) => {
     try {
         const customerId = request.params.customerId;
-    
+        // B1: Prepare data
+        let { limit, page, condition, sortBy, sortOrder } = request.query;
+        limit = parseInt(limit) || 10;
+        page = parseInt(page) || 0;
+        sortBy = sortBy || 'createdAt';
+        sortOrder = sortOrder || 'desc';
+        const skip = limit * page;
+        const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
+        condition = condition ? JSON.parse(condition) : {};
+
         const customer = await customerModel
-          .findById(customerId)
-          .populate('orders')
-          .exec();
-    
+            .findById(customerId)
+            .populate('orders')
+            .exec()
+         
+
         if (!customer) {
-          return response.status(404).json({
-            status: 'Not found',
-            message: 'Khách hàng không tồn tại',
-          });
+            return response.status(404).json({
+                status: 'Not found',
+                message: 'Khách hàng không tồn tại',
+            });
         }
-    
+        const orders= await customer.orders
+        const totalCount=await orders.length
         return response.status(200).json({
-          status: 'Get all orders of customer success',
-          data: customer.orders,
+            status: 'Get all orders of customer success',
+            data: orders,
+            totalCount: totalCount
         });
-      } catch (error) {
+    } catch (error) {
         return response.status(500).json({
-          status: 'Error server',
-          message: error.message,
+            status: 'Error server',
+            message: error.message,
         });
-      }
+    }
 };
 
 //create Order

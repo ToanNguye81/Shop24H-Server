@@ -27,7 +27,7 @@ const createOrderOfCustomerMiddleware=(request, response, next) => {
     next();
 }
 const getAllOrderOfCustomerMiddleware=(request, response, next) => {
-    console.log("Get All of Customer Middleware");
+    console.log("Get All Order of Customer Middleware");
     next();
 }
 

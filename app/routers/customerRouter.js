@@ -13,9 +13,9 @@ const customerMiddleware = require("../middlewares/customerMiddleware");
 const customerController = require("../controllers/customerController")
 
 router.get("/customers",
-    customerMiddleware.getAllCustomerMiddleware,
-    userMiddleware.authenticateUser,
-    userMiddleware.authorizeUser(['manager']),
+    // customerMiddleware.getAllCustomerMiddleware,
+    // userMiddleware.authenticateUser,
+    // userMiddleware.authorizeUser(['manager']),
     customerController.getAllCustomer)
 
 router.post("/customers",
@@ -25,9 +25,9 @@ router.post("/customers",
     customerController.createCustomer)
 
 router.get("/customers/:customerId",
-    customerMiddleware.getCustomerMiddleware,
-    userMiddleware.authenticateUser,
-    userMiddleware.authorizeUser(['manager']),
+    // customerMiddleware.getCustomerMiddleware,
+    // userMiddleware.authenticateUser,
+    // userMiddleware.authorizeUser(['manager']),
     customerController.getCustomerById)
 
 router.put("/customers/:customerId",

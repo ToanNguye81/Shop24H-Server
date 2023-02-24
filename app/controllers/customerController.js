@@ -101,9 +101,9 @@ const getAllCustomer = async (request, response) => {
             .limit(limit)
             .sort(sort)
             // V1 Get Detail
-            .populate({
-                path: 'orders',
-                select: "orderCode"
+            // .populate({
+            //     path: 'orders',
+            //     select: "orderCode",
             //     populate: {
             //         path: 'orderDetails',
             //         populate: {
@@ -111,7 +111,7 @@ const getAllCustomer = async (request, response) => {
             //             model: 'Product'
             //         }
             //     }
-            })
+            // })
             .exec();
 
         // B3: Get total count

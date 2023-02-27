@@ -4,60 +4,7 @@ const mongoose = require("mongoose");
 // Import Module Product Model
 const productModel = require("../models/productModel");
 
-// const getAllProduct = (request, response) => {
-//     console.log(request.query)
-//     // B1: Chuẩn bị dữ liệu
-//     let limit = request.query.limit;
-//     let start = request.query.start;
-//     let brand = request.query.brand;
-//     let maxPrice = request.query.maxPrice;
-//     let minPrice = request.query.minPrice;
-//     let ordinal = request.query.ordinal;
-//     let category = request.query.category;
-//     let page = request.query.page;
-//     let skip = page * limit
-//     if (page) {
-//         start = skip;
-//     }
-
-//     //Tạo điều kiện lọc
-//     let condition = {}
-//     if (brand) {
-//         condition.brand = { $regex: brand }
-//     }
-//     if (minPrice) {
-//         condition.promotionPrice = { $gte: minPrice }
-//     }
-//     if (maxPrice) {
-//         condition.promotionPrice = { ...condition.promotionPrice, $lte: maxPrice }
-//     }
-//     if (category) {
-//         condition.category = { $regex: category }
-//     }
-//     //Tạo diều kiện sort
-//     let sortCondition = [{}, { promotionPrice: "asc" }, { promotionPrice: "desc" }, { name: "asc" }, { name: "desc" }]
-//     // B2: Validate dữ liệu
-
-//     // B3: Gọi Model tạo dữ liệu
-//     productModel
-//         .find(condition)
-//         .sort(sortCondition[ordinal])
-//         .skip(start)
-//         .limit(limit)
-//         .exec((error, data) => {
-//             if (error) {
-//                 return response.status(500).json({
-//                     status: "Internal server error",
-//                     message: error.message
-//                 })
-//             }
-//             return response.status(200).json({
-//                 status: "Get all Product successfully",
-//                 products: data
-//             })
-//         })
-// }
-
+//Get all product
 const getAllProduct = async (request, response) => {
     try {
         // B1: Prepare data

@@ -67,7 +67,7 @@ const getAllProduct = async (request, response) => {
         sortBy = sortBy || 'createdAt';
         sortOrder = sortOrder || 'desc';
         const skip = limit * page;
-        const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
+        const sort = { [sortBy]: sortOrder === 'desc' ? 1 : -1 };
         condition = condition ? JSON.parse(condition) : {};
         console.log(condition)
 
@@ -96,6 +96,8 @@ const getAllProduct = async (request, response) => {
     }
 };
 
+
+//Create Product
 const createProduct = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const body = request.body;

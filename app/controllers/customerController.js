@@ -45,7 +45,7 @@ const createCustomer = async (request, response) => {
             const updatedCustomer = await customer.save();
 
             return response.status(200).json({
-                status: "Success",
+                status: "Update Success",
                 message: "Customer updated successfully",
                 data: updatedCustomer
             });

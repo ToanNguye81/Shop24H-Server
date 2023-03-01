@@ -124,7 +124,6 @@ const createOrderOfCustomer = async (request, response) => {
     // B2: Validate 
     // Validate the data
     const { error } = await validateOrder(customerId, shippedDate, cost);
-    console.log(error)
     if (error) {
         return response.status(400).json({
             status: "Bad Request",

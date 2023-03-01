@@ -142,7 +142,7 @@ const getProductById = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(productId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "productId không hợp lệ"
+            message: "productId not validate"
         })
     }
 
@@ -154,7 +154,6 @@ const getProductById = (request, response) => {
                 message: error.message
             })
         }
-
         return response.status(200).json({
             status: "Get detail Product successfully",
             data: data
@@ -174,76 +173,42 @@ const updateProductById = (request, response) => {
             message: "productId không hợp lệ"
         })
     }
-
-
-    if (body.name !== undefined && body.name.trim() === "") {
+    // B3: Valid Product data
+    const errors = validProduct(body);
+    if (errors) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "name không hợp lệ"
-        })
+            message: errors
+        });
     }
+    // Step 4: Build the update fields
+    const updateFields = {};
+    if (body.name) { updateFields.name = body.name }
+    if (body.brand) { updateFields.brand = body.brand }
+    if (body.description) { updateFields.description = body.description }
+    if (body.type) { updateFields.type = body.type }
+    if (body.imageUrl) { updateFields.imageUrl = body.imageUrl }
+    if (body.buyPrice) { updateFields.buyPrice = body.buyPrice }
+    if (body.promotionPrice) { updateFields.promotionPrice = body.promotionPrice }
+    if (body.amount) { updateFields.amount = body.amount }
 
-    if (body.description !== undefined && body.description.trim() === "") {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "description không hợp lệ"
-        })
-    }
-
-    if (body.imageUrl !== undefined && body.imageUrl.trim() === "") {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "imageUrl không hợp lệ"
-        })
-    }
-
-    if (body.buyPrice !== undefined && body.buyPrice.trim() === "") {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "name không hợp lệ"
-        })
-    }
-
-    if (body.status !== undefined && body.status.trim() === "") {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "name không hợp lệ"
-        })
-    }
-
-    // B3: Gọi Model tạo dữ liệu
-    const updateProduct = {}
-
-    if (body.name !== undefined) {
-        updateProduct.name = body.name
-    }
-    if (body.description !== undefined) {
-        updateProduct.description = body.description
-    }
-    if (body.type !== undefined) {
-        updateProduct.type = body.type
-    }
-    if (body.imageUrl !== undefined) {
-        updateProduct.imageUrl = body.imageUrl
-    }
-    if (body.buyPrice !== undefined) {
-        updateProduct.buyPrice = body.buyPrice
-    }
-    if (body.status !== undefined) {
-        updateProduct.status = body.status
-    }
-
-    productModel.findByIdAndUpdate(productId, updateProduct, (error, data) => {
+    productModel.findByIdAndUpdate(productId, updateFields, { new: true }, (error, updatedProduct) => {
         if (error) {
             return response.status(500).json({
                 status: "Internal server error",
                 message: error.message
             })
         }
+        if (!updatedProduct) {
+            return response.status(404).json({
+                status: "Not Found",
+                message: "Product not found"
+            });
+        }
 
         return response.status(200).json({
             status: "Update Product successfully",
-            data: data
+            data: updatedProduct
         })
     })
 }
@@ -273,6 +238,37 @@ const deleteProductById = (request, response) => {
             status: "Delete Product successfully"
         })
     })
+}
+
+const validProduct = (product) => {
+    const { name, brand, description, type, imageUrl, buyPrice, promotionPrice, amount } = product;
+    const errors = [];
+
+    if (name && name.trim() === '') {
+        errors.push({ field: 'name', message: 'Name must not be empty' });
+    }
+    if (brand && brand.trim() === '') {
+        errors.push({ field: 'brand', message: 'Brand must not be empty' });
+    }
+    if (description && description.trim() === '') {
+        errors.push({ field: 'description', message: 'Description must not be empty' });
+    }
+    if (type && type.trim() === '') {
+        errors.push({ field: 'type', message: 'Type must not be empty' });
+    }
+    if (imageUrl && imageUrl.trim() === '') {
+        errors.push({ field: 'imageUrl', message: 'Image URL must not be empty' });
+    }
+    if (buyPrice && (isNaN(parseFloat(buyPrice)) || parseFloat(buyPrice) <= 0)) {
+        errors.push({ field: 'buyPrice', message: 'Buy price must be a number greater than 0' });
+    }
+    if (promotionPrice && (isNaN(parseFloat(promotionPrice)) || parseFloat(promotionPrice) <= 0)) {
+        errors.push({ field: 'promotionPrice', message: 'Promotion price must be a number greater than 0' });
+    }
+    if (amount && (isNaN(parseInt(amount)) || parseInt(amount) < 0)) {
+        errors.push({ field: 'amount', message: 'Amount must be an integer greater than or equal to 0' });
+    }
+    return errors.length ? errors : null;
 }
 
 module.exports = {

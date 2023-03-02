@@ -12,7 +12,7 @@ const getAllProduct = async (request, response) => {
         limit = parseInt(limit) || 10;
         page = parseInt(page) || 0;
         sortBy = sortBy || 'createdAt';
-        sortOrder = sortOrder || 'desc';
+        sortOrder = sortOrder || 'asc';
         const skip = limit * page;
         const sort = { [sortBy]: sortOrder === 'desc' ? 1 : -1 };
         condition = condition ? JSON.parse(condition) : {};

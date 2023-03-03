@@ -230,24 +230,23 @@ const updateOrderById = (request, response) => {
         })
     }
 
-    if (body.orderCode !== undefined && body.orderCode.trim() === "") {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "orderCode không hợp lệ"
-        })
-    }
-
-
-
     // B3: Gọi Model tạo dữ liệu
     const updateOrder = {}
 
     if (body.orderCode !== undefined) {
         updateOrder.orderCode = body.orderCode
     }
+    
+    if (body.orderCode !== undefined) {
+        updateOrder.note = body.note
+    }
 
-    if (body.phanTramGiamGia !== undefined) {
-        updateOrder.phanTramGiamGia = body.phanTramGiamGia
+    if (body.shippedDate !== undefined) {
+        updateOrder.shippedDate = body.shippedDate
+    }
+
+    if (body.status !== undefined) {
+        updateOrder.status = body.status
     }
 
     orderModel.findByIdAndUpdate(orderId, updateOrder, (error, data) => {

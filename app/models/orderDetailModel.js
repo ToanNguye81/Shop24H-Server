@@ -7,8 +7,8 @@ const Schema = mongoose.Schema
 //Khởi tạo instance orderDetailSchema 
 const orderDetailSchema = new Schema({
     product: {
-        type: mongoose.Types.ObjectId,
-        ref: 'Product'
+        type: Object,
+        required:true
     },
     quantity: {
         type: Number,

@@ -10,7 +10,7 @@ const getAllOrderDetail = async (request, response) => {
     try {
         // B1: Prepare data
         let { limit, page, condition, sortBy, sortOrder } = request.query;
-        limit = parseInt(limit) || 10;
+        limit = parseInt(limit) || 200;
         page = parseInt(page) || 0;
         sortBy = sortBy || 'createdAt';
         sortOrder = sortOrder || 'desc';
@@ -26,10 +26,6 @@ const getAllOrderDetail = async (request, response) => {
             .skip(skip)
             .limit(limit)
             .sort(sort)
-            .populate({
-                path: 'product',
-                select: "name"
-            })
             .exec();
         console.log(data)
 
@@ -199,58 +195,7 @@ const deleteOrderDetailById = (request, response) => {
         })
     })
 }
-// const getAllOrderDetailOfOrder = (request, response) => {
-//     // B1: Chuẩn bị dữ liệu
-//     const orderId = request.params.orderId;
 
-//     // B2: Validate dữ liệu
-//     if (!mongoose.Types.ObjectId.isValid(orderId)) {
-//         return response.status(400).json({
-//             status: "Bad Request",
-//             message: "Order Id không hợp lệ"
-//         })
-//     }
-
-//     // B3: Thao tác với cơ sở dữ liệu
-//     orderModel.findById(orderId)
-//         .populate("OrderDetail")
-//         .exec((error, data) => {
-//             if (error) {
-//                 return response.status(500).json({
-//                     status: "Internal server error",
-//                     message: error.message
-//                 })
-//             }
-
-//             return response.status(200).json({
-//                 status: "Get all detailOrder of order successfully",
-//                 data: data
-//             })
-//         })
-// }
-// const getAllOrderDetailOfOrder = async (request, response) => {
-//     try {
-//         // Extract order ID from request parameters
-//         const orderId = request.params.orderId;
-
-//         // Find order details with matching order ID
-//         const orderDetails = await orderDetailModel.find({
-//             order: mongoose.Types.ObjectId(orderId),
-//         }).populate("product").exec();
-
-//         // Return the matching order details
-//         return response.status(200).json({
-//             status: "Get all order details of order successfully",
-//             data: orderDetails,
-//         });
-//     } catch (error) {
-//         // Return an error message if there was a problem
-//         return response.status(500).json({
-//             status: "Internal server error",
-//             message: error.message,
-//         });
-//     }
-// };
 //Get all order of order
 const getAllOrderDetailOfOrder = async (request, response) => {
     try {
@@ -267,13 +212,6 @@ const getAllOrderDetailOfOrder = async (request, response) => {
 
         const order = await orderModel
             .findById(orderId)
-            .populate({
-                path: 'orderDetails',
-                populate: {
-                    path: "product",
-                    select: "name"
-                }
-            })
             .exec()
         console.log(order)
 
@@ -301,12 +239,12 @@ const getAllOrderDetailOfOrder = async (request, response) => {
 const createOrderDetailOfOrder = async (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const orderId = request.params.orderId;
-    const { product, quantity } = request.body;
-    console.log(orderId)
+    const { productId, quantity } = request.body;
+    console.log(productId)
     console.log(request.body)
 
     // B2: Validate dữ liệu
-    const { error } = validateOrderDetail(orderId, product, quantity);
+    const { error } = validateOrderDetail(orderId, productId, quantity);
     if (error) {
         return response.status(400).json({
             status: "Bad Request",
@@ -314,27 +252,32 @@ const createOrderDetailOfOrder = async (request, response) => {
         })
     }
 
-    // B3: Thao tác với cơ sở dữ liệu
-    const newOrderDetail = {
-        _id: mongoose.Types.ObjectId(),
-        product: product,
-        quantity: quantity
-    }
+
     //B4: Tạo orderDetail V2
     try {
+
+        //Get product 
+        const product = await productModel.findById(productId)
+      
+        
+        // B3: Thao tác với cơ sở dữ liệu
+        const newOrderDetail = {
+            _id: mongoose.Types.ObjectId(),
+            product: product,
+            quantity: quantity
+        }
+        console.log(newOrderDetail)
+
         // Create the order in the database
         const createdOrderDetail = await orderDetailModel.create(newOrderDetail);
-        
-        //Get promotionPrice 
-        const {promotionPrice}  = await productModel.findById(product)
 
         // Add the order ID to the order's order list
         await orderModel.findByIdAndUpdate(orderId, {
             $push: {
-                orderDetails: createdOrderDetail._id
+                orderDetails: createdOrderDetail
             },
             $inc: {
-                cost: promotionPrice*quantity
+                cost: product.promotionPrice * quantity
             }
         }, { new: true });
 
@@ -352,20 +295,20 @@ const createOrderDetailOfOrder = async (request, response) => {
 }
 
 
-const validateOrderDetail = (pramOrderId, paramProduct, paramQuantity) => {
+const validateOrderDetail = (orderId, productId, quantity) => {
     const errors = {}
-    // Validate pramOrderId
-    if (!mongoose.Types.ObjectId.isValid(pramOrderId)) {
+    // Validate orderId
+    if (!mongoose.Types.ObjectId.isValid(orderId)) {
         errors.orderId = 'Invalid order Id';
     }
 
-    // Validate pramOrderId
-    if (!mongoose.Types.ObjectId.isValid(paramProduct)) {
+    // Validate orderId
+    if (!mongoose.Types.ObjectId.isValid(productId)) {
         errors.product = 'Invalid product id';
     }
 
-    // Validate paramQuantity
-    if (!paramQuantity || typeof paramQuantity !== 'number' || paramQuantity < 0) {
+    // Validate quantity
+    if (!quantity || typeof quantity !== 'number' || quantity < 0) {
         errors.quantity = 'Invalid Quantity';
     }
 

@@ -10,7 +10,7 @@ const orderSchema = new Schema({
     orderCode: {
         type: String,
         unique: true,
-        default:()=>crypto.randomBytes(3).toString('hex').substr(0, 6)
+        default: () => crypto.randomBytes(3).toString('hex').substr(0, 6)
     },
     orderDate: {
         type: Date,
@@ -33,9 +33,10 @@ const orderSchema = new Schema({
         type: Number,
         default: 0
     },
-    status:{
-        type: Boolean,
-        default: false
+    status: {
+        type: String,
+        enum: ['waiting', 'delivery', 'success'],
+        default: 'waiting'
     },
 }, {
     //Lưu dấu bảng ghi được cập nhật vào thời gian nào

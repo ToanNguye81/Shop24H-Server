@@ -136,7 +136,8 @@ const createOrderOfCustomer = async (request, response) => {
         _id: mongoose.Types.ObjectId(),
         shippedDate: shippedDate,
         note: note,
-        cost: cost,
+        status:"waiting",
+        cost:0
     }
 
     //B4: Tạo order V2

@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 // Import Module OrderDetail Model
 const orderDetailModel = require("../models/orderDetailModel");
 const orderModel = require("../models/orderModel");
+const productModel = require("../models/productModel");
 
 const getAllOrderDetail = async (request, response) => {
     try {
@@ -27,7 +28,7 @@ const getAllOrderDetail = async (request, response) => {
             .sort(sort)
             .populate({
                 path: 'product',
-                select: "name" 
+                select: "name"
             })
             .exec();
         console.log(data)
@@ -250,7 +251,7 @@ const deleteOrderDetailById = (request, response) => {
 //         });
 //     }
 // };
-//Get all order of custoemr
+//Get all order of order
 const getAllOrderDetailOfOrder = async (request, response) => {
     try {
         const orderId = request.params.orderId;
@@ -323,11 +324,17 @@ const createOrderDetailOfOrder = async (request, response) => {
     try {
         // Create the order in the database
         const createdOrderDetail = await orderDetailModel.create(newOrderDetail);
+        
+        //Get promotionPrice 
+        const {promotionPrice}  = await productModel.findById(product)
 
         // Add the order ID to the order's order list
         await orderModel.findByIdAndUpdate(orderId, {
             $push: {
                 orderDetails: createdOrderDetail._id
+            },
+            $inc: {
+                cost: promotionPrice*quantity
             }
         }, { new: true });
 
@@ -342,33 +349,6 @@ const createOrderDetailOfOrder = async (request, response) => {
             message: err.message
         });
     }
-    // // B4 Tạo orderDetail V1
-    // orderDetailModel.create(orderDetail, (error, data) => {
-    //     if (error) {
-    //         return response.status(500).json({
-    //             status: "Internal server error",
-    //             message: error.message
-    //         })
-    //     }
-    //     // Thêm id của detailOrder mới vào mảng orderDetail của Order đã chọn
-    //     orderModel.findByIdAndUpdate(orderId, {
-    //         $push: {
-    //             orderDetail: data._id
-    //         }
-    //     }, (err, updatedOrder) => {
-    //         if (err) {
-    //             return response.status(500).json({
-    //                 status: "Internal server error",
-    //                 message: err.message
-    //             })
-    //         }
-
-    //         return response.status(201).json({
-    //             status: "Create Order Detail Successfully",
-    //             data: data
-    //         })
-    //     })
-    // })
 }
 
 

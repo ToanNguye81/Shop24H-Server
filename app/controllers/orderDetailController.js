@@ -212,6 +212,13 @@ const getAllOrderDetailOfOrder = async (request, response) => {
 
         const order = await orderModel
             .findById(orderId)
+            .and([condition])
+            .skip(skip)
+            .limit(limit)
+            .sort(sort)
+            .populate({
+                path: 'orderDetails',
+            })
             .exec()
         console.log(order)
 
@@ -258,8 +265,8 @@ const createOrderDetailOfOrder = async (request, response) => {
 
         //Get product 
         const product = await productModel.findById(productId)
-      
-        
+
+
         // B3: Thao tác với cơ sở dữ liệu
         const newOrderDetail = {
             _id: mongoose.Types.ObjectId(),

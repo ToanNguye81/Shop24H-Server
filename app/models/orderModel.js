@@ -38,6 +38,10 @@ const orderSchema = new Schema({
         enum: ['waiting', 'delivery', 'success'],
         default: 'waiting'
     },
+    orderAddress: {
+        type: Object,
+        require:true,
+    },
 }, {
     //Lưu dấu bảng ghi được cập nhật vào thời gian nào
     timestamps: true

@@ -59,7 +59,6 @@ const getAllOrderOfCustomer = async (request, response) => {
             .findById(customerId)
             .populate('orders')
             .exec()
-         
 
         if (!customer) {
             return response.status(404).json({
@@ -137,11 +136,12 @@ const createOrderOfCustomer = async (request, response) => {
         shippedDate: shippedDate,
         note: note,
         status:"waiting",
-        cost:0
+        cost:0,
     }
 
     //B4: Tạo order V2
     try {
+        // const customer = await customerModel.findById(customerId).
         // Create the order in the database
         const createdOrder = await orderModel.create(newOrder);
 

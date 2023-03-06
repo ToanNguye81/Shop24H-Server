@@ -66,8 +66,8 @@ const getAllOrderOfCustomer = async (request, response) => {
                 message: 'Khách hàng không tồn tại',
             });
         }
-        const orders= await customer.orders
-        const totalCount=await orders.length
+        const orders = await customer.orders
+        const totalCount = await orders.length
         return response.status(200).json({
             status: 'Get all orders of customer success',
             data: orders,
@@ -119,7 +119,6 @@ const createOrderOfCustomer = async (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const customerId = request.params.customerId;
     const { shippedDate, note, cost } = request.body
-    console.log(request.body)
     // B2: Validate 
     // Validate the data
     const { error } = await validateOrder(customerId, shippedDate, cost);
@@ -130,19 +129,24 @@ const createOrderOfCustomer = async (request, response) => {
         })
     }
 
-    // B3: Tạo một order mới
-    const newOrder = {
-        _id: mongoose.Types.ObjectId(),
-        shippedDate: shippedDate,
-        note: note,
-        status:"waiting",
-        cost:0,
-    }
 
     //B4: Tạo order V2
     try {
         // const customer = await customerModel.findById(customerId).
         // Create the order in the database
+        const { address, phone, firstName, lastName } = await customerModel.findById(customerId)
+        // B3: Tạo một order mới
+        const newOrder = {
+            _id: mongoose.Types.ObjectId(),
+            shippedDate: shippedDate,
+            note: note,
+            status: "waiting",
+            cost: 0,
+            address: address,
+            phone: phone,
+            customer: firstName + " " + lastName
+        }
+
         const createdOrder = await orderModel.create(newOrder);
 
         // Add the order ID to the customer's order list
@@ -151,6 +155,7 @@ const createOrderOfCustomer = async (request, response) => {
                 orders: createdOrder._id
             }
         }, { new: true });
+
 
         // Return success response
         return response.status(201).json({
@@ -236,19 +241,26 @@ const updateOrderById = (request, response) => {
     if (body.orderCode !== undefined) {
         updateOrder.orderCode = body.orderCode
     }
-    
-    if (body.orderCode !== undefined) {
+
+    if (body.note !== undefined) {
         updateOrder.note = body.note
     }
 
     if (body.shippedDate !== undefined) {
         updateOrder.shippedDate = body.shippedDate
     }
-
     if (body.status !== undefined) {
         updateOrder.status = body.status
     }
-
+    if (body.address !== undefined) {
+        updateOrder.address = body.address
+    }
+    if (body.phone !== undefined) {
+        updateOrder.phone = body.phone
+    }
+    if (body.customer !== undefined) {
+        updateOrder.customer = body.customer
+    }
     orderModel.findByIdAndUpdate(orderId, updateOrder, (error, data) => {
         if (error) {
             return response.status(500).json({

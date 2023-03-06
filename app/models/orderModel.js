@@ -38,9 +38,17 @@ const orderSchema = new Schema({
         enum: ['waiting', 'delivery', 'success'],
         default: 'waiting'
     },
-    orderAddress: {
+    address: {
         type: Object,
         require:true,
+    },
+    customer:{
+        type:String,
+        require: true
+    },
+    phone:{
+        type: String,
+        required: true,
     },
 }, {
     //Lưu dấu bảng ghi được cập nhật vào thời gian nào

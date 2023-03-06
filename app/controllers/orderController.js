@@ -58,7 +58,11 @@ const getAllOrderOfCustomer = async (request, response) => {
         const customer = await customerModel
             .findById(customerId)
             .populate('orders')
-            .exec()
+            .and([condition])
+            .skip(skip)
+            .limit(limit)
+            .sort(sort)
+            .exec();
 
         if (!customer) {
             return response.status(404).json({

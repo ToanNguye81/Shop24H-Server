@@ -11,6 +11,7 @@ const customerRouter = require("./app/routers/customerRouter");
 const orderRouter = require("./app/routers/orderRouter");
 const orderDetailRouter = require("./app/routers/orderDetailRouter");
 const userRouter = require("./app/routers/userRouter");
+const authRouter = require("./app/routers/authRouter");
 
 dotenv.config();
 
@@ -23,9 +24,11 @@ const port = process.env.PORT || 8000;
 app.use(express.json());
 app.use(cors())
 app.use((req, res, next)=> {
+  // res.header('Access-Control-Allow-Origin');
+  // res.header('Access-Control-Allow-Origin', 'http://localhost:3001');
   res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
   res.header('Access-Control-Allow-Credentials', true);
-  next();
+  next(); 
 });
 // Cấu hình request đọc được cookies
 app.use(cookieParser())
@@ -40,16 +43,16 @@ mongoose.connect(process.env.MONGODB_URI, (err) => {
     }
   });
 
-
-
 // App sử dụng router
 app.use("/", productRouter);
 app.use("/", orderRouter);
 app.use("/", customerRouter);
 app.use("/", orderDetailRouter);
 app.use("/", userRouter);
+app.use("/", authRouter);
 
 app.listen(port, () => {
     console.log(`App listening at http://localhost:${port}`);
   });
   
+

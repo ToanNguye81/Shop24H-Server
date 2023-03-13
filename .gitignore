@@ -3,3 +3,5 @@
 package-lock.json
 .vscode
 .env
+.ser
+serviceAccountKey.json

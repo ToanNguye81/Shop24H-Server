@@ -1,26 +1,20 @@
-
 // Khai báo thư viện ExpressJS
 const express = require("express");
 
 // Khai báo router app
 const router = express.Router();
 
-// Import customer middleware
-const authMiddleware = require("../middlewares/authMiddleware");
 
+// // Import course controller
+const customerController = require("../controllers/customerController")
+const authMiddlewares =require("../middlewares/authMiddleware")
 
 router.get("/auth",
-    authMiddleware.authMiddleware,
-    (req, res) => {
-        // handle protected route here
-        console.log("Xác thực thành công")
-    })
+    authMiddlewares.authFireBase,
+    customerController.getAllCustomer)
 
 router.post("/auth",
-    authMiddleware.authMiddleware,
-    (req, res) => {
-        // handle protected route here
-        console.log("Xác thực thành công")
-    })
+    authMiddlewares.authFireBase,
+    customerController.updateCustomerById)
 
 module.exports = router;

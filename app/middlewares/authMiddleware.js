@@ -1,12 +1,11 @@
 const admin = require("firebase-admin");
-const jwt = require("jsonwebtoken");
 const serviceAccount = require("../../serviceAccountKey.json");
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
 });
 
-const authMiddleware = async (req, res, next) => {
+const authFireBase = async (req, res, next) => {
     console.log("Start authMiddleware")
     // ver 2
     try {
@@ -14,19 +13,14 @@ const authMiddleware = async (req, res, next) => {
         const authToken = req.cookies.accessToken || req.headers.authorization.split(" ")[1];
 
         // Verify access token using Firebase Admin SDK
-        /* Phương thức verifyIdToken() sẽ xác thực tính hợp lệ của access token 
-        bằng cách kiểm tra chữ ký số, thời gian hết hạn và các tính năng khác của
-        JWT. Vì vậy, dù không có lệnh cụ thể để tạo JWT trong đoạn mã này, nhưng
-        nó vẫn sử dụng JWT để xác thực tính hợp lệ của access token.
-        */
-       const decodedToken = await admin.auth().verifyIdToken(authToken);
+        const decodedToken = await admin.auth().verifyIdToken(authToken);
 
         // Set the user ID on the request object
         req.userId = decodedToken.uid;
         // Xác thực người dùng bằng Firebase Admin SDK
         const user = await admin.auth().getUser(decodedToken.uid);
-        console.log(user)
         // Lưu thông tin người dùng vào biến req để sử dụng ở các middleware khác
+        console.log("Auth Successly")
         req.userAuth = user;
         next();
     } catch (error) {
@@ -34,4 +28,6 @@ const authMiddleware = async (req, res, next) => {
     }
 }
 
-module.exports = { authMiddleware };
+module.exports = {
+    authFireBase
+}

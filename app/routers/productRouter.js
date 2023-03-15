@@ -5,19 +5,18 @@ const express = require("express");
 const router = express.Router();
 
 // Import product middleware
-const productMiddleware = require("../middlewares/productMiddleware");
 
 // Import course controller
 const productController = require("../controllers/productController")
 
-router.post("/products", productMiddleware.createProductMiddleware, productController.createProduct)
+router.post("/products", productController.createProduct)
 
-router.get("/products", productMiddleware.getAllProductMiddleware, productController.getAllProduct)
+router.get("/products", productController.getAllProduct)
 
-router.get("/products/:productId", productMiddleware.getProductMiddleware, productController.getProductById)
+router.get("/products/:productId", productController.getProductById)
 
-router.put("/products/:productId", productMiddleware.updateProductMiddleware, productController.updateProductById)
+router.put("/products/:productId", productController.updateProductById)
 
-router.delete("/products/:productId", productMiddleware.deleteProductMiddleware, productController.deleteProductById)
+router.delete("/products/:productId", productController.deleteProductById)
 
 module.exports = router;

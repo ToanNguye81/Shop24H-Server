@@ -1,19 +1,18 @@
 // Khai báo thư viện ExpressJS
 const express = require("express");
-const userController = require("../controllers/userController");
-const userMiddleware = require("../middlewares/userMiddleware");
+
 
 // Khai báo router app
 const router = express.Router();
 
 // Import customer middleware
 const customerMiddleware = require("../middlewares/customerMiddleware");
-
+const userController = require("../controllers/userController");
+const userMiddleware = require("../middlewares/userMiddleware");
 // Import course controller
 const customerController = require("../controllers/customerController")
 
 router.get("/customers",
-    // customerMiddleware.getAllCustomerMiddleware,
     // userMiddleware.authenticateUser,
     // userMiddleware.authorizeUser(['manager']),
     customerController.getAllCustomer)

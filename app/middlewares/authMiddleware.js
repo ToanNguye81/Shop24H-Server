@@ -20,8 +20,7 @@ const authFireBase = async (req, res, next) => {
         // Xác thực người dùng bằng Firebase Admin SDK
         const user = await admin.auth().getUser(decodedToken.uid);
         // Lưu thông tin người dùng vào biến req để sử dụng ở các middleware khác
-        console.log("Auth Successly")
-        req.userAuth = user;
+        req.email = user.email;
         next();
     } catch (error) {
         res.status(401).send("Unauthorized");

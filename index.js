@@ -25,8 +25,8 @@ app.use(express.json());
 app.use(cors())
 app.use((req, res, next) => {
   // res.header('Access-Control-Allow-Origin');
-  // res.header('Access-Control-Allow-Origin', 'http://localhost:3001');
   res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
+  // res.header('Access-Control-Allow-Origin', 'http://localhost:3001');
   res.header('Access-Control-Allow-Credentials', true);
   next();
 });
@@ -45,12 +45,12 @@ mongoose.connect(process.env.MONGODB_URI, (err) => {
 
 // App sử dụng router
 //Express cho phép tối đa 5 middleware được thực hiện trong mỗi request. nên nếu có Middleware thứ 6 sẽ bị lỗ
+app.use("/", productRouter);
 app.use("/", authRouter);
 app.use("/", orderDetailRouter);
 app.use("/", customerRouter);
-app.use("/", orderRouter);
 app.use("/", userRouter);
-app.use("/", productRouter);
+app.use("/", orderRouter);
 
 
 app.listen(port, () => {

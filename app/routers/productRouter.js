@@ -9,9 +9,9 @@ const router = express.Router();
 // Import course controller
 const productController = require("../controllers/productController")
 
-router.post("/products", productController.createProduct)
-
 router.get("/products", productController.getAllProduct)
+
+router.post("/products", productController.createProduct)
 
 router.get("/products/:productId", productController.getProductById)
 

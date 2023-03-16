@@ -10,10 +10,13 @@ const customerController = require("../controllers/customerController")
 const authMiddlewares =require("../middlewares/authMiddleware")
 
 router.get("/auth",
-    authMiddlewares.authFireBase,
-    customerController.getAllCustomer)
+authMiddlewares.authFireBase,
+customerController.getCustomerByEmail)
 
-router.post("/auth",
+router.get("/email",
+customerController.getCustomerByEmail)
+
+    router.post("/auth",
     authMiddlewares.authFireBase,
     customerController.updateCustomerById)
 

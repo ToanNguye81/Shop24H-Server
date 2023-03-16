@@ -158,6 +158,30 @@ const getCustomerById = (request, response) => {
     })
 }
 
+const getCustomerByEmail = async (request, response) => {
+    // B1: Chuẩn bị dữ liệu
+    const  {email}  = request;
+    try {   
+        // B2: Call the Model to create data
+        const data = await customerModel.findOne({ email: email})
+        console.log(data)
+        // B3: Get total count
+        // Return success response
+        return response.status(200).json({
+            status: "Get customers by Email successfully",
+            data: data,
+            email:email
+        });
+    } catch (error) {
+        // Return error response
+        return response.status(500).json({
+            status: "Internal server error",
+            message: error.message
+        });
+    }
+}
+
+//Update customer by Id
 const updateCustomerById = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const customerId = request.params.customerId;
@@ -292,5 +316,6 @@ module.exports = {
     createCustomer,
     getCustomerById,
     updateCustomerById,
-    deleteCustomerById
+    deleteCustomerById,
+    getCustomerByEmail
 }

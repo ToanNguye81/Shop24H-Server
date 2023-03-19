@@ -14,7 +14,6 @@
   const orderRouter = require("./app/routers/orderRouter");
   const orderDetailRouter = require("./app/routers/orderDetailRouter");
   const userRouter = require("./app/routers/userRouter");
-  // const authRouter =require("./app/routers/authRouter")
 
   dotenv.config();
 
@@ -49,7 +48,6 @@
   // App sử dụng router
   //Express cho phép tối đa 5 middleware được thực hiện trong mỗi request. nên nếu có Middleware thứ 6 sẽ bị lỗ
   app.use("/", productRouter);
-  // app.use("/", authRouter);
   app.use("/", orderDetailRouter);
   app.use("/", customerRouter);
   app.use("/", userRouter);

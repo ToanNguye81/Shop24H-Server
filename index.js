@@ -48,8 +48,8 @@
   app.use("/", productRouter);
   app.use("/", orderDetailRouter);
   app.use("/", customerRouter);
-  app.use("/", userRouter);
   app.use("/", orderRouter);
+  app.use("/", userRouter);
 
 
   app.listen(port, () => {

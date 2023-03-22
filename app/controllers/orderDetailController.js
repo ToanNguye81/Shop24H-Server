@@ -259,10 +259,8 @@ const createOrderDetailOfOrder = async (request, response) => {
         })
     }
 
-
     //B4: Tạo orderDetail V2
     try {
-
         //Get product 
         const product = await productModel.findById(productId)
 

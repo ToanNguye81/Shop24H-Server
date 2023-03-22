@@ -17,6 +17,7 @@ const getAllOrder = async (request, response) => {
         const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
         condition = condition ? JSON.parse(condition) : {};
 
+        console.log("GEt All Order")
         // B2: Call the Model to create data
         const totalCount = await orderModel.countDocuments(condition);
         const data = await orderModel

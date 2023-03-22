@@ -9,13 +9,12 @@ const createCustomer = async (request, response) => {
     // B1: Prepare data
     const { lastName, firstName, country, city, phone, email, address } = request.body;
     const fields = ['lastName', 'firstName', 'country', 'city', 'email', 'address'];
-    // console.log(request.body['lastName'])=> console.log(lastName)
 
     // B2: Valid data Version 2 - not null and phone
     if (!(phone !== undefined && phone.trim().length === 10 && !isNaN(phone.trim()))) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "phone không hợp lệ"
+            message: "Phone không hợp lệ"
         });
     }
 
@@ -29,8 +28,8 @@ const createCustomer = async (request, response) => {
     }
 
     try {
-        // B3: Check if customer with phone already exists
-        const customer = await customerModel.findOne({ phone: phone });
+        // B3: Check if customer with email already exists
+        const customer = await customerModel.findOne({ email: email });
 
         if (customer) {
             // B4: If customer exists, update customer info
@@ -39,8 +38,8 @@ const createCustomer = async (request, response) => {
             customer.country = country;
             customer.city = city;
             customer.phone = phone;
-            customer.email = email;
             customer.address = address;
+            // customer.email = email;
 
             const updatedCustomer = await customer.save();
 

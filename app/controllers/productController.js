@@ -8,23 +8,30 @@ const productModel = require("../models/productModel");
 const getAllProduct = async (request, response) => {
     try {
         // B1: Prepare data
-        let { limit, page, condition, sortBy, sortOrder } = request.query;
+        let { limit, page, sortBy, sortOrder, brand, minPrice, maxPrice, gender, category } = request.query;
+        console.log(request.query)
         limit = parseInt(limit) || 10;
         page = parseInt(page) || 0;
         sortBy = sortBy || 'createdAt';
         sortOrder = sortOrder || 'asc';
         const skip = limit * page;
         const sort = { [sortBy]: sortOrder === 'desc' ? 1 : -1 };
-        condition = condition ? JSON.parse(condition) : {};
-        console.log(condition)
+        
+        const condition = {
+            promotionPrice: { $gte: minPrice || 0, $lte: maxPrice || 100000 }
+        };
+        gender?condition.gender={$in:gender}:[]
+        brand ? condition.brand = { $in: brand } : []
+        category ? condition.category = {$in:category} : []
+
 
         // B2: Call the Model to create data
         const totalCount = await productModel.countDocuments(condition);
         const data = await productModel
             .find(condition)
+            .sort(sort)
             .skip(skip)
             .limit(limit)
-            .sort(sort)
             .exec();
 
         // B3: Get total count

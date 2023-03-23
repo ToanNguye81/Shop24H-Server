@@ -43,6 +43,11 @@ const productSchema = new Schema({
     amount: {
         type: Number,
         default: 0
+    },
+    category:{
+        type: String,
+        enum: ['TRENDING', 'LATEST',"DISCOUNT","NONE"],
+        default: 'NONE'
     }
 }, {
     //Lưu dấu bảng ghi được cập nhật vào thời gian nào

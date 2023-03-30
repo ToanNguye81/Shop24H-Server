@@ -45,11 +45,11 @@
 
   // App sử dụng router
   //Express cho phép tối đa 5 middleware được thực hiện trong mỗi request. nên nếu có Middleware thứ 6 sẽ bị lỗ
+  app.use("/", userRouter);
   app.use("/", productRouter);
   app.use("/", orderDetailRouter);
-  app.use("/", customerRouter);
   app.use("/", orderRouter);
-  app.use("/", userRouter);
+  app.use("/", customerRouter);
 
 
   app.listen(port, () => {

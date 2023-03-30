@@ -38,7 +38,6 @@ router.delete("/customers/:customerId",
     customerController.deleteCustomerById)
 
 
-
 router.get("/auth",
     authMiddlewares.authFireBase,
     customerController.getCustomerByEmail)

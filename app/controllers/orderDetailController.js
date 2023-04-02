@@ -6,6 +6,7 @@ const orderDetailModel = require("../models/orderDetailModel");
 const orderModel = require("../models/orderModel");
 const productModel = require("../models/productModel");
 
+//Get All order Detail
 const getAllOrderDetail = async (request, response) => {
     try {
         // B1: Prepare data
@@ -45,7 +46,7 @@ const getAllOrderDetail = async (request, response) => {
     }
 }
 
-
+//Create Order Detail
 const createOrderDetail = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const body = request.body;
@@ -88,6 +89,7 @@ const createOrderDetail = (request, response) => {
     })
 }
 
+// get Order Detail ById
 const getOrderDetailById = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const orderDetailId = request.params.orderDetailId;
@@ -116,6 +118,7 @@ const getOrderDetailById = (request, response) => {
     })
 }
 
+// update Order Detail ById
 const updateOrderDetailById = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const orderDetailId = request.params.orderDetailId;
@@ -169,6 +172,7 @@ const updateOrderDetailById = (request, response) => {
     })
 }
 
+// delete Order Detail By Id
 const deleteOrderDetailById = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const orderDetailId = request.params.orderDetailId;
@@ -243,6 +247,7 @@ const getAllOrderDetailOfOrder = async (request, response) => {
     }
 };
 
+// createOrderDetailOfOrder
 const createOrderDetailOfOrder = async (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const orderId = request.params.orderId;
@@ -299,7 +304,7 @@ const createOrderDetailOfOrder = async (request, response) => {
     }
 }
 
-
+// validate Order Detail
 const validateOrderDetail = (orderId, productId, quantity) => {
     const errors = {}
     // Validate orderId
@@ -322,6 +327,7 @@ const validateOrderDetail = (orderId, productId, quantity) => {
         error: Object.keys(errors).length > 0 ? errors : null
     };
 }
+
 module.exports = {
     getAllOrderDetail,
     createOrderDetail,

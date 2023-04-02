@@ -1,10 +1,10 @@
 // Import thư viện Mongoose
-const { request } = require("express");
 const mongoose = require("mongoose");
 
 // Import Module Customer Model
 const customerModel = require("../models/customerModel");
 
+//Create Customer
 const createCustomer = async (request, response) => {
     // B1: Prepare data
     const { lastName, firstName, country, city, phone, email, address } = request.body;
@@ -87,6 +87,7 @@ const createCustomer = async (request, response) => {
     }
 }
 
+//Get All Customer
 const getAllCustomer = async (request, response) => {
     try {
         // B1: Prepare data
@@ -137,6 +138,7 @@ const getAllCustomer = async (request, response) => {
     }
 };
 
+//Get Customer by Id
 const getCustomerById = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const customerId = request.params.customerId;
@@ -165,6 +167,7 @@ const getCustomerById = (request, response) => {
     })
 }
 
+//Get Customer By Email
 const getCustomerByEmail = async (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const  {email}  = request;
@@ -275,6 +278,7 @@ const updateCustomerById = (request, response) => {
         updateCustomer.phone = phone
     }
 
+    //Fin By Id and Update
     customerModel.findByIdAndUpdate(customerId, updateCustomer, { new: true }, (error, data) => {
         if (error) {
             return response.status(500).json({
@@ -290,6 +294,7 @@ const updateCustomerById = (request, response) => {
     })
 }
 
+//Delete customer By Id
 const deleteCustomerById = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const customerId = request.params.customerId;

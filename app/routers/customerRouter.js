@@ -5,12 +5,12 @@ const express = require("express");
 // Khai báo router app
 const router = express.Router();
 
-// Import customer middleware
-const userController = require("../controllers/userController");
+// Import middleware
 const userMiddleware = require("../middlewares/userMiddleware");
-// Import course controller
+const authMiddleware = require("../middlewares/authMiddleware")
+// Import controller
+const userController = require("../controllers/userController");
 const customerController = require("../controllers/customerController")
-const authMiddlewares = require("../middlewares/authMiddleware")
 
 router.get("/customers",
     // userMiddleware.authenticateUser,
@@ -39,7 +39,7 @@ router.delete("/customers/:customerId",
 
 
 router.get("/auth",
-    authMiddlewares.authFireBase,
+    authMiddleware.authFireBase,
     customerController.getCustomerByEmail)
 
 module.exports = router;

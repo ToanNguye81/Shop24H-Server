@@ -50,7 +50,6 @@ const getAllProduct = async (request, response) => {
     }
 };
 
-
 //Create Product
 const createProduct = (request, response) => {
     // B1: Chuẩn bị dữ liệu
@@ -141,6 +140,7 @@ const createProduct = (request, response) => {
     })
 }
 
+//Get Product By Id
 const getProductById = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const productId = request.params.productId;
@@ -168,6 +168,7 @@ const getProductById = (request, response) => {
     })
 }
 
+//Update Product By Id
 const updateProductById = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const productId = request.params.productId;
@@ -220,6 +221,7 @@ const updateProductById = (request, response) => {
     })
 }
 
+//Delete Product By Id
 const deleteProductById = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const productId = request.params.productId;
@@ -247,6 +249,7 @@ const deleteProductById = (request, response) => {
     })
 }
 
+//Valid Product
 const validProduct = (product) => {
     const { name, brand, description, type, imageUrl, buyPrice, promotionPrice, amount } = product;
     const errors = [];

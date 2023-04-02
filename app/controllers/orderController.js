@@ -5,6 +5,8 @@ const mongoose = require("mongoose");
 const orderModel = require("../models/orderModel");
 const customerModel = require("../models/customerModel");
 
+
+//Get All Order
 const getAllOrder = async (request, response) => {
     try {
         // B1: Prepare data
@@ -42,6 +44,7 @@ const getAllOrder = async (request, response) => {
         });
     }
 }
+
 //Get all order of custoemr
 const getAllOrderOfCustomer = async (request, response) => {
     try {
@@ -120,6 +123,7 @@ const createOrder = (request, response) => {
     })
 }
 
+//Create Order Of Customer
 const createOrderOfCustomer = async (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const customerId = request.params.customerId;
@@ -176,6 +180,7 @@ const createOrderOfCustomer = async (request, response) => {
 
 };
 
+//Validate Order
 const validateOrder = (customerId, shippedDate, cost) => {
     const errors = {};
     // Validate customerId
@@ -199,6 +204,7 @@ const validateOrder = (customerId, shippedDate, cost) => {
     };
 }
 
+//Get Order By Id
 const getOrderById = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const orderId = request.params.orderId;
@@ -227,6 +233,7 @@ const getOrderById = (request, response) => {
     })
 }
 
+//Update Order By Id
 const updateOrderById = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const orderId = request.params.orderId;
@@ -281,6 +288,7 @@ const updateOrderById = (request, response) => {
     })
 }
 
+//Delete Order By Id
 const deleteOrderById = (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const orderId = request.params.orderId;

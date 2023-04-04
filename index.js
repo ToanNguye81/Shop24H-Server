@@ -7,7 +7,6 @@
   const dotenv = require('dotenv');
 
   //Set giá trị mongosee
-  // mongoose.set('strictQuery', false);
   // Khai báo router app
   const productRouter = require("./app/routers/productRouter");
   const customerRouter = require("./app/routers/customerRouter");
@@ -44,7 +43,6 @@
   });
 
   // App sử dụng router
-  //Express cho phép tối đa 5 middleware được thực hiện trong mỗi request. nên nếu có Middleware thứ 6 sẽ bị lỗ
   app.use("/", productRouter);
   app.use("/", orderDetailRouter);
   app.use("/", orderRouter);

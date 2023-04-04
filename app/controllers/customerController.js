@@ -8,7 +8,7 @@ const customerModel = require("../models/customerModel");
 const createCustomer = async (request, response) => {
     // B1: Prepare data
     const { lastName, firstName, country, city, phone, email, address } = request.body;
-    const fields = ['lastName', 'firstName', 'country', 'email', 'address'];
+    const fields = ['lastName', 'firstName', 'country', 'city','email', 'address'];
 
     // B2: Valid data Version 2 - not null and phone
     if (!(phone !== undefined && phone.trim().length === 10 && !isNaN(phone.trim()))) {
@@ -18,7 +18,7 @@ const createCustomer = async (request, response) => {
         });
     }
 
-    
+    // check not null
     for (const field of fields) {
         if (!request.body[field].trim()) {
             return response.status(400).json({
@@ -28,26 +28,18 @@ const createCustomer = async (request, response) => {
         }
     }
     
-    if (!city) {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: `City is invalid`
-        });
-    }
-    
     try {
         // B3: Check if customer with email already exists
         const customer = await customerModel.findOne({ email: email });
 
         if (customer) {
-            // B4: If customer exists, update customer info
+            // B4: If customer's email exists, update customer info
             customer.lastName = lastName;
             customer.firstName = firstName;
             customer.country = country;
             customer.city = city;
             customer.phone = phone;
             customer.address = address;
-            // customer.email = email;
 
             const updatedCustomer = await customer.save();
 

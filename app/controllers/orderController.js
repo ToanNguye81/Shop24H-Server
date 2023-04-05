@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 // Import Module Order Model
 const orderModel = require("../models/orderModel");
 const customerModel = require("../models/customerModel");
+const orderDetailModel = require("../models/orderDetailModel");
 
 
 //Get All Order
@@ -56,7 +57,7 @@ const getAllOrderOfCustomer = async (request, response) => {
         sortBy = sortBy || 'createdAt';
         sortOrder = sortOrder || 'asc';
         const skip = limit * page;
-        const sort = { [sortBy]: sortOrder === 'desc'? 1 : -1 };
+        const sort = { [sortBy]: sortOrder === 'desc' ? 1 : -1 };
         // condition = condition ? JSON.parse(condition) : {};
 
         const customer = await customerModel
@@ -141,9 +142,8 @@ const createOrderOfCustomer = async (request, response) => {
 
     //B4: Tạo order V2
     try {
-        // const customer = await customerModel.findById(customerId).
         // Create the order in the database
-        const { address, phone, firstName, lastName } = await customerModel.findById(customerId)
+        const customer = await customerModel.findById(customerId)
         // B3: Tạo một order mới
         const newOrder = {
             _id: mongoose.Types.ObjectId(),
@@ -151,9 +151,9 @@ const createOrderOfCustomer = async (request, response) => {
             note: note,
             status: "waiting",
             cost: 0,
-            address: address,
-            phone: phone,
-            customer: firstName + " " + lastName
+            address: customer.address,
+            phone: customer.phone,
+            customer: customer
         }
 
         const createdOrder = await orderModel.create(newOrder);
@@ -288,33 +288,73 @@ const updateOrderById = (request, response) => {
     })
 }
 
-//Delete Order By Id
-const deleteOrderById = (request, response) => {
-    // B1: Chuẩn bị dữ liệu
+// //Delete Order By Id
+// const deleteOrderById = (request, response) => {
+//     // B1: Chuẩn bị dữ liệu
+//     const orderId = request.params.orderId;
+
+//     // B2: Validate dữ liệu
+//     if (!mongoose.Types.ObjectId.isValid(orderId)) {
+//         return response.status(400).json({
+//             status: "Bad Request",
+//             message: "orderID không hợp lệ"
+//         })
+//     }
+
+//     // B3: Gọi Model tạo dữ liệu
+//     orderModel.findByIdAndDelete(orderId, (error, data) => {
+//         if (error) {
+//             return response.status(500).json({
+//                 status: "Internal server error",
+//                 message: error.message
+//             })
+//         }
+
+//         return response.status(200).json({
+//             status: "Delete Order successfully"
+//         })
+//     })
+// }
+
+//Delete order By Id
+const deleteOrderById = async (request, response) => {
     const orderId = request.params.orderId;
 
-    // B2: Validate dữ liệu
+    // Kiểm tra orderId có hợp lệ hay không
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
         return response.status(400).json({
             status: "Bad Request",
             message: "orderID không hợp lệ"
-        })
+        });
     }
 
-    // B3: Gọi Model tạo dữ liệu
-    orderModel.findByIdAndDelete(orderId, (error, data) => {
-        if (error) {
-            return response.status(500).json({
-                status: "Internal server error",
-                message: error.message
-            })
-        }
+    try {
+        // Tìm order bằng orderId
+        const order = await orderModel.findById(orderId);
 
+        // Lấy danh sách các orderDetail của order và xóa chúng
+        const orderDetails = order.orderDetails;
+        await Promise.all(
+            orderDetails.map(async (orderDetailId) => {
+                await orderDetailModel.findByIdAndDelete(orderDetailId);
+            }))
+
+        // Xóa order
+        await orderModel.findByIdAndDelete(orderId);
+
+        // Trả về client
         return response.status(200).json({
             status: "Delete Order successfully"
-        })
-    })
-}
+        });
+
+    } catch (error) {
+        // Xử lý lỗi nếu có bất kỳ lỗi nào xảy ra trong quá trình xóa
+        return response.status(500).json({
+            status: "Internal server error",
+            message: error.message
+        });
+    }
+};
 
 module.exports = {
     getAllOrder,

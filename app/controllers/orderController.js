@@ -288,34 +288,6 @@ const updateOrderById = (request, response) => {
     })
 }
 
-// //Delete Order By Id
-// const deleteOrderById = (request, response) => {
-//     // B1: Chuẩn bị dữ liệu
-//     const orderId = request.params.orderId;
-
-//     // B2: Validate dữ liệu
-//     if (!mongoose.Types.ObjectId.isValid(orderId)) {
-//         return response.status(400).json({
-//             status: "Bad Request",
-//             message: "orderID không hợp lệ"
-//         })
-//     }
-
-//     // B3: Gọi Model tạo dữ liệu
-//     orderModel.findByIdAndDelete(orderId, (error, data) => {
-//         if (error) {
-//             return response.status(500).json({
-//                 status: "Internal server error",
-//                 message: error.message
-//             })
-//         }
-
-//         return response.status(200).json({
-//             status: "Delete Order successfully"
-//         })
-//     })
-// }
-
 //Delete order By Id
 const deleteOrderById = async (request, response) => {
     const orderId = request.params.orderId;

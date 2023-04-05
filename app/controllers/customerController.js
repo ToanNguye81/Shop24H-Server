@@ -3,12 +3,14 @@ const mongoose = require("mongoose");
 
 // Import Module Customer Model
 const customerModel = require("../models/customerModel");
+const orderModel = require("../models/orderModel");
+const orderDetailModel = require("../models/orderDetailModel");
 
 //Create Customer
 const createCustomer = async (request, response) => {
     // B1: Prepare data
     const { lastName, firstName, country, city, phone, email, address } = request.body;
-    const fields = ['lastName', 'firstName', 'country', 'city','email', 'address'];
+    const fields = ['lastName', 'firstName', 'country', 'city', 'email', 'address'];
 
     // B2: Valid data Version 2 - not null and phone
     if (!(phone !== undefined && phone.trim().length === 10 && !isNaN(phone.trim()))) {
@@ -27,7 +29,7 @@ const createCustomer = async (request, response) => {
             });
         }
     }
-    
+
     try {
         // B3: Check if customer with email already exists
         const customer = await customerModel.findOne({ email: email });
@@ -162,17 +164,17 @@ const getCustomerById = (request, response) => {
 //Get Customer By Email
 const getCustomerByEmail = async (request, response) => {
     // B1: Chuẩn bị dữ liệu
-    const  {email}  = request;
-    try {   
+    const { email } = request;
+    try {
         // B2: Call the Model to create data
-        const data = await customerModel.findOne({ email: email})
+        const data = await customerModel.findOne({ email: email })
         console.log(data)
         // B3: Get total count
         // Return success response
         return response.status(200).json({
             status: "Get customers by Email successfully",
             data: data,
-            email:email
+            email: email
         });
     } catch (error) {
         // Return error response
@@ -286,34 +288,56 @@ const updateCustomerById = (request, response) => {
     })
 }
 
-//Delete customer By Id
-const deleteCustomerById = (request, response) => {
-    // B1: Chuẩn bị dữ liệu
+// //Delete customer By Id
+const deleteCustomerById = async (request, response) => {
     const customerId = request.params.customerId;
-
-    // B2: Validate dữ liệu
+  
+    // Kiểm tra customerId có hợp lệ hay không
     if (!mongoose.Types.ObjectId.isValid(customerId)) {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "customerID không hợp lệ"
-        })
+      return response.status(400).json({
+        status: "Bad Request",
+        message: "customerID không hợp lệ"
+      });
     }
-
-
-    // B3: Gọi Model tạo dữ liệu
-    customerModel.findByIdAndDelete(customerId, (error, data) => {
-        if (error) {
-            return response.status(500).json({
-                status: "Internal server error",
-                message: error.message
+  
+    try {
+      // Tìm customer bằng customerId
+      const customer = await customerModel.findById(customerId);
+  
+      // Lấy danh sách các order của customer và xóa chúng
+      const orders = customer.orders;
+      await Promise.all(
+        orders.map(async (orderId) => {
+          // Tìm order bằng orderId
+          const order = await orderModel.findById(orderId);
+  
+          // Xóa tất cả order details của order
+          await Promise.all(
+            order.orderDetails.map(async (orderDetailId) => {
+              await orderDetailModel.findByIdAndDelete(orderDetailId);
             })
-        }
-
-        return response.status(200).json({
-            status: "Delete Customer successfully"
+          );
+  
+          // Xóa order
+          await orderModel.findByIdAndDelete(orderId);
         })
-    })
-}
+      );
+  
+      // Xóa customer
+      await customerModel.findByIdAndDelete(customerId);
+  
+      return response.status(200).json({
+        status: "Delete Customer successfully"
+      });
+    } catch (error) {
+      // Xử lý lỗi nếu có bất kỳ lỗi nào xảy ra trong quá trình xóa
+      return response.status(500).json({
+        status: "Internal server error",
+        message: error.message
+      });
+    }
+  };
+  
 
 module.exports = {
     getAllCustomer,

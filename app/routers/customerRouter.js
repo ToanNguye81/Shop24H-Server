@@ -33,8 +33,8 @@ router.put("/customers/:customerId",
     customerController.updateCustomerById)
 
 router.delete("/customers/:customerId",
-    userMiddleware.authenticateUser,
-    userMiddleware.authorizeUser(['manager']),
+    // userMiddleware.authenticateUser,
+    // userMiddleware.authorizeUser(['manager']),
     customerController.deleteCustomerById)
 
 

@@ -153,7 +153,7 @@ const createOrderOfCustomer = async (request, response) => {
             cost: 0,
             address: customer.address,
             phone: customer.phone,
-            customer: customer
+            customer: customer.firstName+ " " +customer.lastName,
         }
 
         const createdOrder = await orderModel.create(newOrder);

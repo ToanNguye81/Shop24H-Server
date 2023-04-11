@@ -11,20 +11,29 @@ const orderDetailModel = require("../models/orderDetailModel");
 const getAllOrder = async (request, response) => {
     try {
         // B1: Prepare data
-        let { limit, page, condition, sortBy, sortOrder } = request.query;
+        let { limit, page, searchQuery, sortBy, sortOrder } = request.query;
         limit = parseInt(limit) || 10;
         page = parseInt(page) || 0;
         sortBy = sortBy || 'createdAt';
         sortOrder = sortOrder || 'desc';
         const skip = limit * page;
         const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
-        condition = condition ? JSON.parse(condition) : {};
+        const fields = Object.keys(orderModel.schema.paths).filter((field) => [
+            "orderCode",
+            "note",
+            "status",
+            "address",
+            "customer",
+            "phone",
+        ].includes(field));
+        const condition = fields.map((field) => ({
+            [field]: { $regex: searchQuery, $options: "i" },
+        }))
 
-        console.log("GEt All Order")
         // B2: Call the Model to create data
-        const totalCount = await orderModel.countDocuments(condition);
+        const totalCount = await orderModel.countDocuments({ $or: condition });
         const data = await orderModel
-            .find(condition)
+            .find({ $or: condition })
             .skip(skip)
             .limit(limit)
             .sort(sort)
@@ -51,7 +60,7 @@ const getAllOrderOfCustomer = async (request, response) => {
     try {
         const customerId = request.params.customerId;
         // B1: Prepare data
-        let { limit, page, condition, sortBy, sortOrder } = request.query;
+        let { limit, page, searchQuery, sortBy, sortOrder } = request.query;
         limit = parseInt(limit) || 10;
         page = parseInt(page) || 0;
         sortBy = sortBy || 'createdAt';
@@ -59,6 +68,7 @@ const getAllOrderOfCustomer = async (request, response) => {
         const skip = limit * page;
         const sort = { [sortBy]: sortOrder === 'desc' ? 1 : -1 };
         // condition = condition ? JSON.parse(condition) : {};
+        
 
         const customer = await customerModel
             .findById(customerId)
@@ -153,7 +163,7 @@ const createOrderOfCustomer = async (request, response) => {
             cost: 0,
             address: customer.address,
             phone: customer.phone,
-            customer: customer.firstName+ " " +customer.lastName,
+            customer: customer.firstName + " " + customer.lastName,
         }
 
         const createdOrder = await orderModel.create(newOrder);

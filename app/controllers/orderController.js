@@ -19,22 +19,29 @@ const getAllOrder = async (request, response) => {
         sortOrder = sortOrder || 'desc';
         const skip = limit * page;
         const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
+        const regexQuery = { $regex: typeof searchQuery === 'string' ? searchQuery : '', $options: 'i' };
+
+
         const fields = Object.keys(orderModel.schema.paths).filter((field) => [
             "orderCode",
             "note",
             "status",
-            "address",
-            "customer",
-            "phone",
         ].includes(field));
-        const condition = fields.map((field) => ({
-            [field]: { $regex: typeof searchQuery === "string" ? searchQuery : "", $options: "i" },
-        }))
+        const condition = {
+            $or: [
+                ...fields.map((field) => ({ [field]: regexQuery })),
+                { "customer.phone": regexQuery },
+                { "customer.address": regexQuery },
+                { "customer.country": regexQuery },
+                { "customer.city": regexQuery },
+                { "customer.email": regexQuery }
+            ]
+        };
 
         // B2: Call the Model to create data
-        const totalCount = await orderModel.countDocuments({ $or: condition });
+        const totalCount = await orderModel.countDocuments(condition);
         const data = await orderModel
-            .find({ $or: condition })
+            .find(condition)
             .skip(skip)
             .limit(limit)
             .sort(sort)
@@ -68,22 +75,27 @@ const getAllOrderOfCustomer = async (request, response) => {
         sortOrder = sortOrder || 'asc';
         const skip = limit * page;
         const sort = { [sortBy]: sortOrder === 'desc' ? 1 : -1 };
-        // condition = condition ? JSON.parse(condition) : {};
+        const regexQuery = { $regex: typeof searchQuery === 'string' ? searchQuery : '', $options: 'i' };
+
 
         const fields = Object.keys(orderModel.schema.paths).filter((field) => [
             "orderCode",
             "note",
             "status",
-            "address",
-            "customer",
-            "phone",
         ].includes(field));
         const condition = {
             "customer._id": ObjectId(customerId),
-            $or: fields.map((field) => ({
-                [field]: { $regex: typeof searchQuery === "string" ? searchQuery : "", $options: "i" },
-            })),
+            $or: [
+                ...fields.map((field) => ({ [field]: regexQuery })),
+                { "customer.phone": regexQuery },
+                { "customer.address": regexQuery },
+                { "customer.country": regexQuery },
+                { "customer.city": regexQuery },
+                { "customer.email": regexQuery }
+            ]
         };
+
+        console.log(condition)
 
         // B2: Call the Model to create data
         const totalCount = await orderModel.countDocuments(condition);
@@ -163,6 +175,7 @@ const createOrderOfCustomer = async (request, response) => {
     try {
         // Create the order in the database
         const customer = await customerModel.findById(customerId)
+        const { lastName, firstName, phone, email, address, city, country } = customer
         // B3: Tạo một order mới
         const newOrder = {
             _id: mongoose.Types.ObjectId(),
@@ -170,9 +183,7 @@ const createOrderOfCustomer = async (request, response) => {
             note: note,
             status: "waiting",
             cost: 0,
-            address: customer.address,
-            phone: customer.phone,
-            customer: customer
+            customer: { lastName, firstName, phone, email, address, city, country }
         }
 
         const createdOrder = await orderModel.create(newOrder);
@@ -283,15 +294,15 @@ const updateOrderById = (request, response) => {
     if (body.status !== undefined) {
         updateOrder.status = body.status
     }
-    if (body.address !== undefined) {
-        updateOrder.address = body.address
-    }
-    if (body.phone !== undefined) {
-        updateOrder.phone = body.phone
-    }
-    if (body.customer !== undefined) {
-        updateOrder.customer = body.customer
-    }
+    // if (body.address !== undefined) {
+    //     updateOrder.address = body.address
+    // }
+    // if (body.phone !== undefined) {
+    //     updateOrder.phone = body.phone
+    // }
+    // if (body.customer !== undefined) {
+    //     updateOrder.customer = body.customer
+    // }
     orderModel.findByIdAndUpdate(orderId, updateOrder, (error, data) => {
         if (error) {
             return response.status(500).json({

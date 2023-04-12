@@ -90,9 +90,10 @@ const getAllCustomer = async (request, response) => {
         limit = parseInt(limit) || 10;
         page = parseInt(page) || 0;
         sortBy = sortBy || 'createdAt';
-        sortOrder = sortOrder || 'desc';
+        sortOrder = sortOrder || 'asc';
         const skip = limit * page;
-        const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
+        const sort = { [sortBy]: sortOrder === 'desc' ? 1 : -1 };
+
         
         //create searchCondition, toLowerCase
         const fields = Object.keys(customerModel.schema.paths).filter((field) => ["lastName","firstName","phone","email","address","city","country"].includes(field));

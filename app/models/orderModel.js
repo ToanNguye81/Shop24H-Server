@@ -40,13 +40,13 @@ const orderSchema = new Schema({
     },
     address: {
         type: Object,
-        require:true,
+        require: true,
     },
-    customer:{
-        type:String,
+    customer: {
+        type: Object,
         require: true
     },
-    phone:{
+    phone: {
         type: String,
         required: true,
     },

@@ -1,5 +1,6 @@
 // Import thư viện Mongoose
 const mongoose = require("mongoose");
+const { ObjectId } = require('mongodb');
 
 // Import Module Order Model
 const orderModel = require("../models/orderModel");
@@ -27,7 +28,7 @@ const getAllOrder = async (request, response) => {
             "phone",
         ].includes(field));
         const condition = fields.map((field) => ({
-            [field]: { $regex: searchQuery, $options: "i" },
+            [field]: { $regex: typeof searchQuery === "string" ? searchQuery : "", $options: "i" },
         }))
 
         // B2: Call the Model to create data
@@ -68,25 +69,33 @@ const getAllOrderOfCustomer = async (request, response) => {
         const skip = limit * page;
         const sort = { [sortBy]: sortOrder === 'desc' ? 1 : -1 };
         // condition = condition ? JSON.parse(condition) : {};
-        
 
-        const customer = await customerModel
-            .findById(customerId)
-            .populate('orders')
-            // .and([condition])
+        const fields = Object.keys(orderModel.schema.paths).filter((field) => [
+            "orderCode",
+            "note",
+            "status",
+            "address",
+            "customer",
+            "phone",
+        ].includes(field));
+        const condition = {
+            "customer._id": ObjectId(customerId),
+            $or: fields.map((field) => ({
+                [field]: { $regex: typeof searchQuery === "string" ? searchQuery : "", $options: "i" },
+            })),
+        };
+
+        // B2: Call the Model to create data
+        const totalCount = await orderModel.countDocuments(condition);
+        const orders = await orderModel
+            .find(condition)
             .skip(skip)
             .limit(limit)
             .sort(sort)
             .exec();
 
-        if (!customer) {
-            return response.status(404).json({
-                status: 'Not found',
-                message: 'Khách hàng không tồn tại',
-            });
-        }
-        const orders = await customer.orders
-        const totalCount = await orders.length
+
+
         return response.status(200).json({
             status: 'Get all orders of customer success',
             data: orders,
@@ -163,7 +172,7 @@ const createOrderOfCustomer = async (request, response) => {
             cost: 0,
             address: customer.address,
             phone: customer.phone,
-            customer: customer.firstName + " " + customer.lastName,
+            customer: customer
         }
 
         const createdOrder = await orderModel.create(newOrder);

@@ -92,7 +92,7 @@ const getAllCustomer = async (request, response) => {
         sortBy = sortBy || 'createdAt';
         sortOrder = sortOrder || 'asc';
         const skip = limit * page;
-        const sort = { [sortBy]: sortOrder === 'desc' ? 1 : -1 };
+        const sort = { [sortBy]: sortOrder === 'desc' ? -1: 1 };
 
         
         //create searchCondition, toLowerCase

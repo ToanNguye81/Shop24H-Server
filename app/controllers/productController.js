@@ -15,7 +15,7 @@ const getAllProduct = async (request, response) => {
         sortBy = sortBy || 'createdAt';
         sortOrder = sortOrder || 'asc';
         const skip = limit * page;
-        const sort = { [sortBy]: sortOrder === 'desc' ? 1 : -1 };
+        const sort = { [sortBy]: sortOrder === 'desc' ? -1 : 1 };
         
         const condition = {
             promotionPrice: { $gte: minPrice || 0, $lte: maxPrice || 100000 }

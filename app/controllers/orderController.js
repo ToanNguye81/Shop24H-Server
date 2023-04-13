@@ -21,6 +21,8 @@ const getAllOrder = async (request, response) => {
         const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
         const regexQuery = { $regex: typeof searchQuery === 'string' ? searchQuery : '', $options: 'i' };
 
+        console.log({ limit, page, searchQuery, sortBy, sortOrder } )
+        console.log(sort)
 
         const fields = Object.keys(orderModel.schema.paths).filter((field) => [
             "orderCode",
@@ -72,12 +74,11 @@ const getAllOrderOfCustomer = async (request, response) => {
         limit = parseInt(limit) || 10;
         page = parseInt(page) || 0;
         sortBy = sortBy || 'createdAt';
-        sortOrder = sortOrder || 'asc';
+        sortOrder = sortOrder || 'desc';
         const skip = limit * page;
-        const sort = { [sortBy]: sortOrder === 'desc' ? 1 : -1 };
+        const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
         const regexQuery = { $regex: typeof searchQuery === 'string' ? searchQuery : '', $options: 'i' };
-
-
+        
         const fields = Object.keys(orderModel.schema.paths).filter((field) => [
             "orderCode",
             "note",

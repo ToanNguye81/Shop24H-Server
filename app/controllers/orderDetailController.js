@@ -10,25 +10,47 @@ const productModel = require("../models/productModel");
 const getAllOrderDetail = async (request, response) => {
     try {
         // B1: Prepare data
-        let { limit, page, condition, sortBy, sortOrder } = request.query;
+        let { limit, page, searchQuery, sortBy, sortOrder } = request.query;
         limit = parseInt(limit) || 200;
         page = parseInt(page) || 0;
         sortBy = sortBy || 'createdAt';
         sortOrder = sortOrder || 'desc';
         const skip = limit * page;
         const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
-        condition = condition ? JSON.parse(condition) : {};
-        console.log(condition)
+        const regexQuery = { $regex: typeof searchQuery === 'string' ? searchQuery : '', $options: 'i' }
+
+        const condition = {
+            $or: [
+                { "product.name": regexQuery },
+                { "product.brand": regexQuery },
+                { "product.description": regexQuery },
+                { "product.type": regexQuery },
+                { "product.category": regexQuery },
+            ]
+        };
+
+        if (!isNaN(searchQuery) && searchQuery) {
+            const searchNumber = parseInt(searchQuery)
+            condition.$or.push(
+                { quantity: searchNumber },
+                { "product.buyPrice": searchNumber },
+                { "product.promotionPrice": searchNumber },
+                { "product.amount": searchNumber },
+            )
+        }
 
         // B2: Call the Model to create data
         const totalCount = await orderDetailModel.countDocuments(condition);
+        console.log(totalCount)
         const data = await orderDetailModel
             .find(condition)
             .skip(skip)
             .limit(limit)
             .sort(sort)
             .exec();
+        // console.log(data)
         console.log(data)
+
 
         // B3: Get total count
         // Return success response
@@ -45,6 +67,74 @@ const getAllOrderDetail = async (request, response) => {
         });
     }
 }
+
+//Get all order of order
+const getAllOrderDetailOfOrder = async (request, response) => {
+    try {
+        const orderId = request.params.orderId;
+        // B1: Prepare data
+        let { limit, page, searchQuery, sortBy, sortOrder } = request.query;
+        limit = parseInt(limit) || 10;
+        page = parseInt(page) || 0;
+        sortBy = sortBy || 'createdAt';
+        sortOrder = sortOrder || 'desc';
+        const skip = limit * page;
+        const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
+        const regexQuery = { $regex: typeof searchQuery === 'string' ? searchQuery : '', $options: 'i' }
+
+        const condition = {
+            $or: [
+
+                { "product.name": regexQuery },
+                { "product.brand": regexQuery },
+                { "product.description": regexQuery },
+                { "product.type": regexQuery },
+                { "product.category": regexQuery },
+            ]
+        };
+
+        if (!isNaN(searchQuery) && searchQuery) {
+            const searchNumber = parseInt(searchQuery)
+            condition.$or.push(
+                { quantity: searchNumber },
+                { "product.buyPrice": searchNumber },
+                { "product.promotionPrice": searchNumber },
+                { "product.amount": searchNumber },
+            )
+        }
+
+        const order = await orderModel
+            .findById(orderId)
+            .and([condition])
+            .skip(skip)
+            .limit(limit)
+            .sort(sort)
+            .populate({
+                path: 'orderDetails',
+            })
+            .exec()
+        console.log(order)
+
+        if (!order) {
+            return response.status(404).json({
+                status: 'Not found',
+                message: 'Not found order',
+            });
+        }
+        const orderDetails = await order.orderDetails
+        const totalCount = await orderDetails.length
+        return response.status(200).json({
+            status: 'Get all orderDetails of Order success',
+            data: orderDetails,
+            totalCount: totalCount
+        });
+    } catch (error) {
+        return response.status(500).json({
+            status: 'Error server',
+            message: error.message,
+        });
+    }
+};
 
 //Create Order Detail
 const createOrderDetail = (request, response) => {
@@ -117,6 +207,7 @@ const getOrderDetailById = (request, response) => {
         })
     })
 }
+
 
 // update Order Detail ById
 const updateOrderDetailById = (request, response) => {
@@ -200,52 +291,7 @@ const deleteOrderDetailById = (request, response) => {
     })
 }
 
-//Get all order of order
-const getAllOrderDetailOfOrder = async (request, response) => {
-    try {
-        const orderId = request.params.orderId;
-        // B1: Prepare data
-        let { limit, page, condition, sortBy, sortOrder } = request.query;
-        limit = parseInt(limit) || 10;
-        page = parseInt(page) || 0;
-        sortBy = sortBy || 'createdAt';
-        sortOrder = sortOrder || 'desc';
-        const skip = limit * page;
-        const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
-        condition = condition ? JSON.parse(condition) : {};
 
-        const order = await orderModel
-            .findById(orderId)
-            .and([condition])
-            .skip(skip)
-            .limit(limit)
-            .sort(sort)
-            .populate({
-                path: 'orderDetails',
-            })
-            .exec()
-        console.log(order)
-
-        if (!order) {
-            return response.status(404).json({
-                status: 'Not found',
-                message: 'Not found order',
-            });
-        }
-        const orderDetails = await order.orderDetails
-        const totalCount = await orderDetails.length
-        return response.status(200).json({
-            status: 'Get all orderDetails of Order success',
-            data: orderDetails,
-            totalCount: totalCount
-        });
-    } catch (error) {
-        return response.status(500).json({
-            status: 'Error server',
-            message: error.message,
-        });
-    }
-};
 
 // createOrderDetailOfOrder
 const createOrderDetailOfOrder = async (request, response) => {

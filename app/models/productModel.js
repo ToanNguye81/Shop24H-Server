@@ -44,7 +44,7 @@ const productSchema = new Schema({
         type: Number,
         default: 0
     },
-    category:{
+    category: {
         type: String,
         enum: ['TRENDING', 'LATEST',"DISCOUNT","NONE"],
         default: 'NONE'

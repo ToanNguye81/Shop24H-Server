@@ -94,9 +94,8 @@ const getAllCustomer = async (request, response) => {
         const skip = limit * page;
         const sort = { [sortBy]: sortOrder === 'desc' ? -1: 1 };
 
-        
         //create searchCondition, toLowerCase
-        const fields = Object.keys(customerModel.schema.paths).filter((field) => ["lastName","firstName","phone","email","address","city","country"].includes(field));
+        const fields = ["lastName","firstName","phone","email","address","city","country"];
         const condition = fields.map((field) => ({
             [field]: { $regex: searchQuery, $options: "i" },
         }))

@@ -24,11 +24,11 @@ const getAllOrder = async (request, response) => {
         console.log({ limit, page, searchQuery, sortBy, sortOrder } )
         console.log(sort)
 
-        const fields = Object.keys(orderModel.schema.paths).filter((field) => [
+        const fields = [
             "orderCode",
             "note",
             "status",
-        ].includes(field));
+        ];
         const condition = {
             $or: [
                 ...fields.map((field) => ({ [field]: regexQuery })),
@@ -79,11 +79,11 @@ const getAllOrderOfCustomer = async (request, response) => {
         const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
         const regexQuery = { $regex: typeof searchQuery === 'string' ? searchQuery : '', $options: 'i' };
         
-        const fields = Object.keys(orderModel.schema.paths).filter((field) => [
+        const fields = [
             "orderCode",
             "note",
             "status",
-        ].includes(field));
+        ];
         const condition = {
             "customer._id": ObjectId(customerId),
             $or: [

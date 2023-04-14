@@ -20,6 +20,7 @@ const getAllProduct = async (request, response) => {
         const condition = {
             promotionPrice: { $gte: minPrice || 0, $lte: maxPrice || 100000 }
         };
+        
         gender?condition.gender={$in:gender}:[]
         brand ? condition.brand = { $in: brand } : []
         category ? condition.category = {$in:category} : []

@@ -48,8 +48,6 @@ const getAllOrderDetail = async (request, response) => {
             .limit(limit)
             .sort(sort)
             .exec();
-        // console.log(data)
-        console.log(data)
 
 
         // B3: Get total count
@@ -113,7 +111,6 @@ const getAllOrderDetailOfOrder = async (request, response) => {
                 path: 'orderDetails',
             })
             .exec()
-        console.log(order)
 
         if (!order) {
             return response.status(404).json({

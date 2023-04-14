@@ -97,7 +97,7 @@ const getAllCustomer = async (request, response) => {
         //create searchCondition, toLowerCase
         const fields = ["lastName","firstName","phone","email","address","city","country"];
         const condition = fields.map((field) => ({
-            [field]: { $regex: searchQuery, $options: "i" },
+            [field]: { $regex: searchQuery.trim(), $options: "i" },
         }))
 
         // B2: Call the Model to create data

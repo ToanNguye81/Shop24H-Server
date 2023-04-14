@@ -17,7 +17,7 @@ const getAllOrderDetail = async (request, response) => {
         sortOrder = sortOrder || 'desc';
         const skip = limit * page;
         const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
-        const regexQuery = { $regex: typeof searchQuery === 'string' ? searchQuery : '', $options: 'i' }
+        const regexQuery = { $regex: typeof searchQuery.trim() === 'string' ? searchQuery.trim() : '', $options: 'i' }
 
         const condition = {
             $or: [
@@ -29,8 +29,8 @@ const getAllOrderDetail = async (request, response) => {
             ]
         };
 
-        if (!isNaN(searchQuery) && searchQuery) {
-            const searchNumber = parseInt(searchQuery)
+        if (!isNaN(searchQuery.trim()) && searchQuery.trim()) {
+            const searchNumber = parseInt(searchQuery.trim())
             condition.$or.push(
                 { quantity: searchNumber },
                 { "product.buyPrice": searchNumber },
@@ -41,7 +41,6 @@ const getAllOrderDetail = async (request, response) => {
 
          // B2: Call the Model to find data
         const totalCount = await orderDetailModel.countDocuments(condition);
-        console.log(totalCount)
         const data = await orderDetailModel
             .find(condition)
             .skip(skip)

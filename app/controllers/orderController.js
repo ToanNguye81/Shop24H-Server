@@ -19,19 +19,15 @@ const getAllOrder = async (request, response) => {
         sortOrder = sortOrder || 'desc';
         const skip = limit * page;
         const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
-        const regexQuery = { $regex: typeof searchQuery === 'string' ? searchQuery : '', $options: 'i' };
+        const regexQuery = { $regex: typeof searchQuery.trim() === 'string' ? searchQuery.trim() : '', $options: 'i' };
 
         console.log({ limit, page, searchQuery, sortBy, sortOrder } )
-        console.log(sort)
-
-        const fields = [
-            "orderCode",
-            "note",
-            "status",
-        ];
+        
         const condition = {
             $or: [
-                ...fields.map((field) => ({ [field]: regexQuery })),
+                {orderCode:regexQuery},
+                {note:regexQuery},
+                {status:regexQuery},
                 { "customer.phone": regexQuery },
                 { "customer.address": regexQuery },
                 { "customer.country": regexQuery },
@@ -39,6 +35,11 @@ const getAllOrder = async (request, response) => {
                 { "customer.email": regexQuery }
             ]
         };
+        if(!isNaN(searchQuery.trim()) &&searchQuery.trim()){
+            condition.$or.push(
+                {cost: parseInt(searchQuery.trim())}
+            )
+        }
 
         // B2: Call the Model to create data
         const totalCount = await orderModel.countDocuments(condition);
@@ -77,7 +78,7 @@ const getAllOrderOfCustomer = async (request, response) => {
         sortOrder = sortOrder || 'desc';
         const skip = limit * page;
         const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
-        const regexQuery = { $regex: typeof searchQuery === 'string' ? searchQuery : '', $options: 'i' };
+        const regexQuery = { $regex: typeof searchQuery.trim() === 'string' ? searchQuery.trim() : '', $options: 'i' };
         
         const fields = [
             "orderCode",

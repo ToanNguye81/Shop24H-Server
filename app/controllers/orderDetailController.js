@@ -39,7 +39,7 @@ const getAllOrderDetail = async (request, response) => {
             )
         }
 
-        // B2: Call the Model to create data
+         // B2: Call the Model to find data
         const totalCount = await orderDetailModel.countDocuments(condition);
         console.log(totalCount)
         const data = await orderDetailModel
@@ -80,9 +80,9 @@ const getAllOrderDetailOfOrder = async (request, response) => {
         const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
         const regexQuery = { $regex: typeof searchQuery === 'string' ? searchQuery : '', $options: 'i' }
 
+        // set condition 
         const condition = {
             $or: [
-
                 { "product.name": regexQuery },
                 { "product.brand": regexQuery },
                 { "product.description": regexQuery },
@@ -91,6 +91,7 @@ const getAllOrderDetailOfOrder = async (request, response) => {
             ]
         };
 
+        //set condition with number 
         if (!isNaN(searchQuery) && searchQuery) {
             const searchNumber = parseInt(searchQuery)
             condition.$or.push(
@@ -101,6 +102,7 @@ const getAllOrderDetailOfOrder = async (request, response) => {
             )
         }
 
+         // B2: Call the Model to find data
         const order = await orderModel
             .findById(orderId)
             .and([condition])
@@ -112,12 +114,15 @@ const getAllOrderDetailOfOrder = async (request, response) => {
             })
             .exec()
 
+        //If not find order 
         if (!order) {
             return response.status(404).json({
                 status: 'Not found',
                 message: 'Not found order',
             });
         }
+
+        //get OrderDetail and return
         const orderDetails = await order.orderDetails
         const totalCount = await orderDetails.length
         return response.status(200).json({
@@ -126,6 +131,7 @@ const getAllOrderDetailOfOrder = async (request, response) => {
             totalCount: totalCount
         });
     } catch (error) {
+        //error
         return response.status(500).json({
             status: 'Error server',
             message: error.message,

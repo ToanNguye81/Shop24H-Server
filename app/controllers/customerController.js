@@ -20,6 +20,7 @@ const createCustomer = async (request, response) => {
         });
     }
 
+
     // check not null
     for (const field of fields) {
         if (!request.body[field].trim()) {

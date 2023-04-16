@@ -35,6 +35,7 @@ const getAllOrder = async (request, response) => {
                 { "customer.email": regexQuery }
             ]
         };
+
         if(!isNaN(searchQuery.trim()) &&searchQuery.trim()){
             condition.$or.push(
                 {cost: parseInt(searchQuery.trim())}
@@ -79,12 +80,14 @@ const getAllOrderOfCustomer = async (request, response) => {
         const skip = limit * page;
         const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
         const regexQuery = { $regex: typeof searchQuery.trim() === 'string' ? searchQuery.trim() : '', $options: 'i' };
-        
+    
         const fields = [
             "orderCode",
             "note",
             "status",
         ];
+        console.log(customerId)
+
         const condition = {
             "customer._id": ObjectId(customerId),
             $or: [
@@ -107,7 +110,6 @@ const getAllOrderOfCustomer = async (request, response) => {
             .limit(limit)
             .sort(sort)
             .exec();
-
 
 
         return response.status(200).json({
@@ -177,7 +179,7 @@ const createOrderOfCustomer = async (request, response) => {
     try {
         // Create the order in the database
         const customer = await customerModel.findById(customerId)
-        const { lastName, firstName, phone, email, address, city, country } = customer
+        const { lastName, firstName, phone, email, address, city, country,_id } = customer
         // B3: Tạo một order mới
         const newOrder = {
             _id: mongoose.Types.ObjectId(),
@@ -185,7 +187,7 @@ const createOrderOfCustomer = async (request, response) => {
             note: note,
             status: "waiting",
             cost: 0,
-            customer: { lastName, firstName, phone, email, address, city, country }
+            customer: {_id, lastName, firstName, phone, email, address, city, country }
         }
 
         const createdOrder = await orderModel.create(newOrder);

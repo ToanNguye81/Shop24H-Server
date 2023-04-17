@@ -259,7 +259,6 @@ const getOrderById = (request, response) => {
                 message: error.message
             })
         }
-
         return response.status(200).json({
             status: "Get Order by Id successfully",
             data: data
@@ -284,10 +283,6 @@ const updateOrderById = (request, response) => {
     // B3: Gọi Model tạo dữ liệu
     const updateOrder = {}
 
-    if (body.orderCode !== undefined) {
-        updateOrder.orderCode = body.orderCode
-    }
-
     if (body.note !== undefined) {
         updateOrder.note = body.note
     }
@@ -298,15 +293,7 @@ const updateOrderById = (request, response) => {
     if (body.status !== undefined) {
         updateOrder.status = body.status
     }
-    // if (body.address !== undefined) {
-    //     updateOrder.address = body.address
-    // }
-    // if (body.phone !== undefined) {
-    //     updateOrder.phone = body.phone
-    // }
-    // if (body.customer !== undefined) {
-    //     updateOrder.customer = body.customer
-    // }
+   
     orderModel.findByIdAndUpdate(orderId, updateOrder, (error, data) => {
         if (error) {
             return response.status(500).json({

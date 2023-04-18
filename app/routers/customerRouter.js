@@ -28,8 +28,8 @@ router.get("/customers/:customerId",
     customerController.getCustomerById)
 
 router.put("/customers/:customerId",
-    userMiddleware.authenticateUser,
-    userMiddleware.authorizeUser(['manager']),
+    // userMiddleware.authenticateUser,
+    // userMiddleware.authorizeUser(['manager']),
     customerController.updateCustomerById)
 
 router.delete("/customers/:customerId",

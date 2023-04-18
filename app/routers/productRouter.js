@@ -5,18 +5,32 @@ const express = require("express");
 const router = express.Router();
 
 // Import product middleware
+const userMiddleware = require("../middlewares/userMiddleware");
 
 // Import course controller
 const productController = require("../controllers/productController")
 
+
+// Get product Router
 router.get("/products", productController.getAllProduct)
+router.get("/products/:productId",productController.getProductById)
 
-router.post("/products", productController.createProduct)
+// Create product Router
+router.post("/products",
+    // userMiddleware.authenticateUser,
+    // userMiddleware.authorizeUser(['manager','employee']),
+    productController.createProduct)
 
-router.get("/products/:productId", productController.getProductById)
+// Update product Router    
+router.put("/products/:productId",
+    // userMiddleware.authenticateUser,
+    // userMiddleware.authorizeUser(['manager','employee']),
+    productController.updateProductById)
 
-router.put("/products/:productId", productController.updateProductById)
-
-router.delete("/products/:productId", productController.deleteProductById)
+// Delete product Router  
+router.delete("/products/:productId",
+    // userMiddleware.authenticateUser,
+    // userMiddleware.authorizeUser(['manager','employee']),
+    productController.deleteProductById)
 
 module.exports = router;

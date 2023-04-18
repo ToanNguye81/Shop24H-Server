@@ -43,10 +43,10 @@
   });
 
   // App sử dụng router
+  app.use("/", customerRouter);
   app.use("/", productRouter);
   app.use("/", orderDetailRouter);
   app.use("/", orderRouter);
-  app.use("/", customerRouter);
   app.use("/", userRouter);
 
 

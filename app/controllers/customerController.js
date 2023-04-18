@@ -1,5 +1,7 @@
 // Import thư viện Mongoose
 const mongoose = require("mongoose");
+const validator = require('validator');
+
 
 // Import Module Customer Model
 const customerModel = require("../models/customerModel");
@@ -10,31 +12,43 @@ const orderDetailModel = require("../models/orderDetailModel");
 const createCustomer = async (request, response) => {
     // B1: Prepare data
     const { lastName, firstName, country, city, phone, email, address } = request.body;
-    const fields = ['lastName', 'firstName', 'country', 'city', 'email', 'address'];
+    const fields = ['lastName', 'firstName', 'country', 'city', 'address', "phone", "email"];
 
+    console.log({ lastName, firstName, country, city, phone, email, address })
     // B2: Valid data Version 2 - not null and phone
-    if (!(phone !== undefined && phone.trim().length === 10 && !isNaN(phone.trim()))) {
+    // Check isEmpty in input fields 
+    for (const field of fields) {
+        if (validator.isEmpty(request.body[field])) {
+            return response.status(400).json({
+                status: "Bad Request",
+                message: `${field} is required`
+            });
+        }
+    }
+
+
+    //Valid phone
+    if (!validator.isMobilePhone(phone, 'vi-VN')) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "Phone không hợp lệ"
+            message: "Phone is invalid"
+        });
+    }
+
+    if (!validator.isEmail(email)) {
+        return response.status(400).json({
+            status: "Bad Request",
+            message: "Email is invalid"
         });
     }
 
 
-    // check not null
-    for (const field of fields) {
-        if (!request.body[field].trim()) {
-            return response.status(400).json({
-                status: "Bad Request",
-                message: `${field} is invalid`
-            });
-        }
-    }
 
     try {
         // B3: Check if customer with email already exists
         const customer = await customerModel.findOne({ email: email });
 
+        
         if (customer) {
             // B4: If customer's email exists, update customer info
             customer.lastName = lastName;
@@ -77,14 +91,13 @@ const createCustomer = async (request, response) => {
         // Return error response
         return response.status(500).json({
             status: "Internal server error",
-            message: error.message
+            message: error
         })
     }
 }
 
 //Get All Customer
 const getAllCustomer = async (request, response) => {
-    console.log(request.query)
     try {
         // B1: Prepare data
         let { limit, page, sortBy, sortOrder, searchQuery } = request.query;
@@ -93,10 +106,10 @@ const getAllCustomer = async (request, response) => {
         sortBy = sortBy || 'createdAt';
         sortOrder = sortOrder || 'asc';
         const skip = limit * page;
-        const sort = { [sortBy]: sortOrder === 'desc' ? -1: 1 };
+        const sort = { [sortBy]: sortOrder === 'desc' ? -1 : 1 };
 
-        //create searchCondition, toLowerCase
-        const fields = ["lastName","firstName","phone","email","address","city","country"];
+        //create searchCondition
+        const fields = ["lastName", "firstName", "phone", "email", "address", "city", "country"];
         const condition = fields.map((field) => ({
             [field]: { $regex: searchQuery.trim(), $options: "i" },
         }))
@@ -121,7 +134,7 @@ const getAllCustomer = async (request, response) => {
         // Return error response
         return response.status(500).json({
             status: "Internal server error",
-            message: error.message
+            message: error
         });
     }
 };
@@ -162,7 +175,6 @@ const getCustomerByEmail = async (request, response) => {
     try {
         // B2: Call the Model to create data
         const data = await customerModel.findOne({ email: email })
-        console.log(data)
         // B3: Get total count
         // Return success response
         return response.status(200).json({
@@ -180,106 +192,98 @@ const getCustomerByEmail = async (request, response) => {
 }
 
 //Update customer by Id
-const updateCustomerById = (request, response) => {
+const updateCustomerById = async (request, response) => {
+    console.log("Update customer by Id")
     // B1: Chuẩn bị dữ liệu
     const customerId = request.params.customerId;
     const { lastName, firstName, country, city, phone, email, address } = request.body;
-    const fields = ['lastName', 'firstName', 'email', 'address', 'phone'];
+    const fields = ['lastName', 'firstName', 'address', "city", "country","city","phone"];
 
     // B2: Validate data
     if (!mongoose.Types.ObjectId.isValid(customerId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "customerID is invalid"
+            message: "customerId is invalid"
         })
     }
 
-    if (lastName !== undefined && lastName.trim() === "") {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "lastName không hợp lệ"
-        })
+    // Check isEmpty in input fields 
+    for (const field of fields) {
+        if (validator.isEmpty(request.body[field])) {
+            return response.status(400).json({
+                status: "Bad Request",
+                message: `${field} is required`
+            });
+        }
     }
 
-    if (phone !== undefined && (phone.trim().length !== 10 || isNaN(phone.trim()))) {
+    //Valid phone
+    if (!validator.isMobilePhone(phone, 'vi-VN')) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "phone không hợp lệ update"
+            message: "Phone is invalid"
         });
     }
 
-    if (firstName !== undefined && firstName.trim() === "") {
+    if (!validator.isEmail(email)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "firstName không hợp lệ"
-        })
-    }
-
-    if (email !== undefined && email.trim() === "") {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "email không hợp lệ"
-        })
-    }
-
-    if (country !== undefined && country.trim() === "") {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "country không hợp lệ"
-        })
-    }
-
-    if (city !== undefined && city.trim() === "") {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "city không hợp lệ"
-        })
-    }
-
-    if (address !== undefined && address.trim() === "") {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "address không hợp lệ"
-        })
+            message: "Email is invalid"
+        });
     }
 
     // B3: Gọi Model update dữ liệu
-    const updateCustomer = {}
+    const updateCustomer = {};
 
-    if (lastName !== undefined) {
-        updateCustomer.lastName = lastName
+    if (lastName) {
+        updateCustomer.lastName = lastName;
     }
 
-    if (firstName !== undefined) {
-        updateCustomer.firstName = firstName
+    if (firstName) {
+        updateCustomer.firstName = firstName;
     }
 
-    if (email !== undefined) {
-        updateCustomer.email = email
+    if (phone) {
+        updateCustomer.phone = phone;
     }
 
-    if (address !== undefined) {
-        updateCustomer.address = address
+    if (email) {
+        updateCustomer.email = email;
     }
 
-    if (phone !== undefined) {
-        updateCustomer.phone = phone
+    if (address) {
+        updateCustomer.address = address;
     }
 
+    if (city) {
+        updateCustomer.city = city;
+    }
+
+    if (country) {
+        updateCustomer.country = country;
+    }
+
+    console.log(updateCustomer)
     //Fin By Id and Update
-    customerModel.findByIdAndUpdate(customerId, updateCustomer, { new: true }, (error, data) => {
-        if (error) {
-            return response.status(500).json({
-                status: "Internal server error",
-                message: error.message
-            })
+    try {
+        const updatedCustomer = await customerModel.findByIdAndUpdate(customerId, updateCustomer, { new: true });
+        if (!updatedCustomer) {
+            return response.status(404).json({
+                status: "Not found",
+                message: "Customer not found"
+            });
         }
-
         return response.status(200).json({
             status: "Update Customer successfully",
-            data: data
+            data: updatedCustomer
         })
-    })
+
+    } catch (error) {
+        return response.status(500).json({
+            status: "Internal server error",
+            message: error.message
+        })
+    }
 }
 
 // //Delete customer By Id

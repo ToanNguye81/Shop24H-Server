@@ -1,7 +1,7 @@
 
 const { body } = require('express-validator');
 const jwt = require('jsonwebtoken');
-const User = require('../models/userModel');
+const user = require('../models/userModel');
 
 //Validate SignUp
 const validateSignup = [
@@ -36,7 +36,7 @@ const authenticateUser = (req, res, next) => {
 //Authorize User
 const authorizeUser = (allowedRoles) => {
   return (req, res, next) => {
-    User.findById(req.userId)
+    user.findById(req.userId)
       .then(user => {
         if (!user) {
           console.log("Không tìm thấy user")

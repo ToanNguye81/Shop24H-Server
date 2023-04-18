@@ -6,8 +6,13 @@ const router = express.Router();
 
 // Import course controller
 const orderController = require("../controllers/orderController")
+const userMiddleware = require("../middlewares/userMiddleware");
 
-router.get("/orders", orderController.getAllOrder)
+
+router.get("/orders",
+    // userMiddleware.authenticateUser,
+    // userMiddleware.authorizeUser(['manager', 'employee']),
+    orderController.getAllOrder)
 
 router.post("/orders", orderController.createOrder)
 

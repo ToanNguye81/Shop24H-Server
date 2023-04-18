@@ -5,8 +5,8 @@ admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),
 });
 
+//Xác thực với fireBase accessToken
 const authFireBase = async (req, res, next) => {
-    console.log("Start authMiddleware")
     // ver 2
     try {
         // Get access token from Authorization header

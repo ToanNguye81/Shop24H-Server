@@ -17,17 +17,14 @@ const validateLogin = [
 
 //authenticate User - xác thực người dùng
 const authenticateUser = (req, res, next) => {
-  // console.log(req.cookies.token)
   try {
     const token = req.cookies.token
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     const userId = decodedToken.userId;
-    // console.log(req.body.userId)
     if (req.body.userId && req.body.userId !== userId) {
       throw 'Invalid user Id';
     } else {
       req.userId = userId;
-      console.log("authenticate User success")
       next();
     }
   } catch (error) {

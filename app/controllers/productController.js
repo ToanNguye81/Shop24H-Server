@@ -9,7 +9,6 @@ const getAllProduct = async (request, response) => {
     try {
         // B1: Prepare data
         let { limit, page, sortBy, sortOrder, brand, minPrice, maxPrice, gender, category } = request.query;
-        console.log(request.query)
         limit = parseInt(limit) || 10;
         page = parseInt(page) || 0;
         sortBy = sortBy || 'createdAt';
@@ -24,7 +23,6 @@ const getAllProduct = async (request, response) => {
         gender?condition.gender={$in:gender}:[]
         brand ? condition.brand = { $in: brand } : []
         category ? condition.category = {$in:category} : []
-
 
         // B2: Call the Model to create data
         const totalCount = await productModel.countDocuments(condition);

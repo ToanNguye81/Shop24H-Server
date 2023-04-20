@@ -21,8 +21,6 @@ const getAllOrder = async (request, response) => {
         const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
         const regexQuery = { $regex: typeof searchQuery.trim() === 'string' ? searchQuery.trim() : '', $options: 'i' };
 
-        console.log({ limit, page, searchQuery, sortBy, sortOrder } )
-        
         const condition = {
             $or: [
                 {orderCode:regexQuery},
@@ -86,7 +84,6 @@ const getAllOrderOfCustomer = async (request, response) => {
             "note",
             "status",
         ];
-        console.log(customerId)
 
         const condition = {
             "customer._id": ObjectId(customerId),
@@ -99,8 +96,6 @@ const getAllOrderOfCustomer = async (request, response) => {
                 { "customer.email": regexQuery }
             ]
         };
-
-        console.log(condition)
 
         // B2: Call the Model to create data
         const totalCount = await orderModel.countDocuments(condition);

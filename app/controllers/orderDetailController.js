@@ -300,8 +300,6 @@ const createOrderDetailOfOrder = async (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const orderId = request.params.orderId;
     const { productId, quantity } = request.body;
-    console.log(productId)
-    console.log(request.body)
 
     // B2: Validate dữ liệu
     const { error } = validateOrderDetail(orderId, productId, quantity);

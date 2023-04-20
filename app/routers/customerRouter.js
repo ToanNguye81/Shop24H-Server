@@ -18,6 +18,7 @@ router.get("/customers",
     customerController.getAllCustomer)
 
 router.post("/customers",
+
     // userMiddleware.authenticateUser,
     // userMiddleware.authorizeUser(['manager']),
     customerController.createCustomer)

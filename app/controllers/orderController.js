@@ -149,7 +149,7 @@ const createOrder = (request, response) => {
 }
 
 //Create Order Of Customer
-const createOrderOfCustomer = async (request, response) => {
+const createOrderOfCustomerV2 = async (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const customerId = request.params.customerId;
     const { shippedDate, note, cost } = request.body
@@ -339,7 +339,7 @@ const deleteOrderById = async (request, response) => {
 };
 
 //Create Order Of Customer
-const createOrderOfCustomerVersion2 = async (request, response) => {
+const createOrderOfCustomer = async (request, response) => {
 
     //B1: Prepare data from request
     // const { email } = request;
@@ -402,12 +402,24 @@ const createOrderOfCustomerVersion2 = async (request, response) => {
             customer = await customerModel.create(newCustomer);
         }
 
-        // B4: Create Order
+
+        //B4: Create Order detail
+        let orderDetails = [];
+        let cost = 0;
+
+        for (const cartItem of cart) {
+            const quantity = cartItem.quantity
+            const product = await productModel.findById(cartItem.product._id)
+            const orderDetail = await orderDetailModel.create({ product, quantity })
+            orderDetails.push(orderDetail._id)
+            cost = cost + product.promotionPrice * quantity
+        }
+
+        // B5: Create Order
         const newOrder = {
             _id: mongoose.Types.ObjectId(),
             note: note,
-            status: "waiting",
-            cost: 0,
+            cost: cost,
             customer: {
                 _id: customer._id,
                 lastName: customer.lastName,
@@ -417,46 +429,14 @@ const createOrderOfCustomerVersion2 = async (request, response) => {
                 phone: customer.phone,
                 email: customer.email,
                 address: customer.address
-            }
+            },
+            orderDetails
         }
         const createdOrder = await orderModel.create(newOrder);
-
-        // Add the order Id to the customer's order list
-        await customerModel.findByIdAndUpdate(customer._id, {
-            $push: {
-                orders: createdOrder._id
-            }
-        }, { new: true });
-
-
-        //B5: Create Order detail
-        let totalOrderDetail = []
-        let cost = 0;
-        for (const cartItem of cart) {
-            const quantity = cartItem.quantity
-            const product = await productModel.findById(cartItem.product._id)
-            const newOrderDetail = {
-                _id: mongoose.Types.ObjectId(),
-                product: product,
-                quantity: quantity
-            }
-            const orderDetailCreated = await orderDetailModel.create(newOrderDetail)
-            totalOrderDetail.push(orderDetailCreated._id)
-            cost = cost + product.promotionPrice * quantity
-        }
-        console.log(totalOrderDetail)
-        console.log(cost)
-
-        // Add the orderDetail Id to the order
-        const data = await orderModel.findByIdAndUpdate(createdOrder._id, {
-            cost: cost,
-            orderDetails: totalOrderDetail
-        }, { new: true });
-
         // B6: Return success response 
         return response.status(200).json({
             status: "Create Order Successfully",
-            data: data,
+            data: createdOrder
         });
 
     } catch (err) {

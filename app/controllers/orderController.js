@@ -149,7 +149,7 @@ const createOrder = (request, response) => {
 }
 
 //Create Order Of Customer
-const createOrderOfCustomerV2 = async (request, response) => {
+const createOrderOfCustomer = async (request, response) => {
     // B1: Chuẩn bị dữ liệu
     const customerId = request.params.customerId;
     const { shippedDate, note, cost } = request.body
@@ -339,11 +339,11 @@ const deleteOrderById = async (request, response) => {
 };
 
 //Create Order Of Customer
-const createOrderOfCustomer = async (request, response) => {
+const createOrderOfCustomerVer2 = async (request, response) => {
 
     //B1: Prepare data from request
-    // const { email } = request;
-    const { lastName, firstName, country, city, phone, address, cart, note, email } = request.body
+    const { email } = request;
+    const { lastName, firstName, country, city, phone, address, cart, note } = request.body
     const fields = ["lastName", "firstName", "country", "city", "phone", "address"]
 
     console.log({ lastName, firstName, country, city, phone, address, cart, note, email })
@@ -385,7 +385,7 @@ const createOrderOfCustomer = async (request, response) => {
             findCustomer.city = city;
             findCustomer.phone = phone;
             findCustomer.address = address;
-            customer = await findCustomer.save();
+            customer = await findCustomer.save();//Update
         }
         else {
             // B3.2: If customer does not exist, create new customer
@@ -433,6 +433,7 @@ const createOrderOfCustomer = async (request, response) => {
             orderDetails
         }
         const createdOrder = await orderModel.create(newOrder);
+        
         // B6: Return success response 
         return response.status(200).json({
             status: "Create Order Successfully",

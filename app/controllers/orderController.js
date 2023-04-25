@@ -187,7 +187,7 @@ const createOrderOfCustomer = async (request, response) => {
 
         const createdOrder = await orderModel.create(newOrder);
 
-        // Add the order ID to the customer's order list
+        // Add the order Id to the customer's order list
         await customerModel.findByIdAndUpdate(customerId, {
             $push: {
                 orders: createdOrder._id
@@ -242,7 +242,7 @@ const getOrderById = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "orderID không hợp lệ"
+            message: "orderId không hợp lệ"
         })
     }
 
@@ -271,7 +271,7 @@ const updateOrderById = (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "orderID không hợp lệ"
+            message: "orderId không hợp lệ"
         })
     }
 
@@ -312,7 +312,7 @@ const deleteOrderById = async (request, response) => {
     if (!mongoose.Types.ObjectId.isValid(orderId)) {
         return response.status(400).json({
             status: "Bad Request",
-            message: "orderID không hợp lệ"
+            message: "orderId không hợp lệ"
         });
     }
 

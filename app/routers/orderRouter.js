@@ -14,7 +14,7 @@ router.get("/orders",
     // userMiddleware.authorizeUser(['manager', 'employee']),
     orderController.getAllOrder)
 
-router.post("/orders", orderController.createOrder)
+router.post("/orders", orderController.createOrderOfCustomer)
 
 router.get("/orders/:orderId", orderController.getOrderById)
 

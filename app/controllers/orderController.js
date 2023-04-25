@@ -1,12 +1,14 @@
 // Import thư viện Mongoose
 const mongoose = require("mongoose");
 const { ObjectId } = require('mongodb');
+const validator = require('validator');
+
 
 // Import Module Order Model
 const orderModel = require("../models/orderModel");
 const customerModel = require("../models/customerModel");
 const orderDetailModel = require("../models/orderDetailModel");
-
+const productModel = require("../models/productModel");
 
 //Get All Order
 const getAllOrder = async (request, response) => {
@@ -23,9 +25,9 @@ const getAllOrder = async (request, response) => {
 
         const condition = {
             $or: [
-                {orderCode:regexQuery},
-                {note:regexQuery},
-                {status:regexQuery},
+                { orderCode: regexQuery },
+                { note: regexQuery },
+                { status: regexQuery },
                 { "customer.phone": regexQuery },
                 { "customer.address": regexQuery },
                 { "customer.country": regexQuery },
@@ -34,9 +36,9 @@ const getAllOrder = async (request, response) => {
             ]
         };
 
-        if(!isNaN(searchQuery.trim()) &&searchQuery.trim()){
+        if (!isNaN(searchQuery.trim()) && searchQuery.trim()) {
             condition.$or.push(
-                {cost: parseInt(searchQuery.trim())}
+                { cost: parseInt(searchQuery.trim()) }
             )
         }
 
@@ -78,7 +80,7 @@ const getAllOrderOfCustomer = async (request, response) => {
         const skip = limit * page;
         const sort = { [sortBy]: sortOrder === 'asc' ? 1 : -1 };
         const regexQuery = { $regex: typeof searchQuery.trim() === 'string' ? searchQuery.trim() : '', $options: 'i' };
-    
+
         const fields = [
             "orderCode",
             "note",
@@ -126,14 +128,6 @@ const createOrder = (request, response) => {
     const body = request.body;
 
     // B2: Validate dữ liệu
-    // Kiểm tra orderCode có hợp lệ hay không
-    if (!body.orderCode) {
-        return response.status(400).json({
-            status: "Bad Request",
-            message: "orderCode không hợp lệ"
-        })
-    }
-
     // B3: Gọi Model tạo dữ liệu
     const newOrder = {
         _id: mongoose.Types.ObjectId(),
@@ -174,7 +168,7 @@ const createOrderOfCustomer = async (request, response) => {
     try {
         // Create the order in the database
         const customer = await customerModel.findById(customerId)
-        const { lastName, firstName, phone, email, address, city, country,_id } = customer
+        const { lastName, firstName, phone, email, address, city, country, _id } = customer
         // B3: Tạo một order mới
         const newOrder = {
             _id: mongoose.Types.ObjectId(),
@@ -182,7 +176,7 @@ const createOrderOfCustomer = async (request, response) => {
             note: note,
             status: "waiting",
             cost: 0,
-            customer: {_id, lastName, firstName, phone, email, address, city, country }
+            customer: { _id, lastName, firstName, phone, email, address, city, country }
         }
 
         const createdOrder = await orderModel.create(newOrder);
@@ -288,7 +282,7 @@ const updateOrderById = (request, response) => {
     if (body.status !== undefined) {
         updateOrder.status = body.status
     }
-   
+
     orderModel.findByIdAndUpdate(orderId, updateOrder, (error, data) => {
         if (error) {
             return response.status(500).json({
@@ -342,6 +336,136 @@ const deleteOrderById = async (request, response) => {
             message: error.message
         });
     }
+};
+
+//Create Order Of Customer
+const createOrderOfCustomerVersion2 = async (request, response) => {
+
+    //B1: Prepare data from request
+    // const { email } = request;
+    const { lastName, firstName, country, city, phone, address, cart, note, email } = request.body
+    const fields = ["lastName", "firstName", "country", "city", "phone", "address"]
+
+    console.log({ lastName, firstName, country, city, phone, address, cart, note, email })
+
+    //B2: Valid data
+    if (!cart || !cart.length) {
+        return response.status(400).json({
+            status: "Bad request",
+            message: `Your cart is empty`
+        })
+    }
+
+    for (const field of fields) {
+        if (!request.body[field]) {
+            return response.status(400).json({
+                status: "Bad request",
+                message: `${field} is required`
+            })
+        }
+    }
+
+    //Valid phone
+    if (!validator.isMobilePhone(phone, 'vi-VN')) {
+        return response.status(400).json({
+            status: "Bad Request",
+            message: "Phone is invalid"
+        });
+    }
+
+    try {
+        // B3: Create-Update Customer
+        let customer = {};
+        const findCustomer = await customerModel.findOne({ email: email })
+        if (findCustomer) {
+            // B3.1: If findCustomer's email exists, update findCustomer info
+            findCustomer.lastName = lastName;
+            findCustomer.firstName = firstName;
+            findCustomer.country = country;
+            findCustomer.city = city;
+            findCustomer.phone = phone;
+            findCustomer.address = address;
+            customer = await findCustomer.save();
+        }
+        else {
+            // B3.2: If customer does not exist, create new customer
+            const newCustomer = new customerModel({
+                _id: mongoose.Types.ObjectId(),
+                lastName: lastName,
+                firstName: firstName,
+                country: country,
+                city: city,
+                phone: phone,
+                email: email,
+                address: address
+            });
+            customer = await customerModel.create(newCustomer);
+        }
+
+        // B4: Create Order
+        const newOrder = {
+            _id: mongoose.Types.ObjectId(),
+            note: note,
+            status: "waiting",
+            cost: 0,
+            customer: {
+                _id: customer._id,
+                lastName: customer.lastName,
+                firstName: customer.firstName,
+                country: customer.country,
+                city: customer.city,
+                phone: customer.phone,
+                email: customer.email,
+                address: customer.address
+            }
+        }
+        const createdOrder = await orderModel.create(newOrder);
+
+        // Add the order Id to the customer's order list
+        await customerModel.findByIdAndUpdate(customer._id, {
+            $push: {
+                orders: createdOrder._id
+            }
+        }, { new: true });
+
+
+        //B5: Create Order detail
+        let totalOrderDetail = []
+        let cost = 0;
+        for (const cartItem of cart) {
+            const quantity = cartItem.quantity
+            const product = await productModel.findById(cartItem.product._id)
+            const newOrderDetail = {
+                _id: mongoose.Types.ObjectId(),
+                product: product,
+                quantity: quantity
+            }
+            const orderDetailCreated = await orderDetailModel.create(newOrderDetail)
+            totalOrderDetail.push(orderDetailCreated._id)
+            cost = cost + product.promotionPrice * quantity
+        }
+        console.log(totalOrderDetail)
+        console.log(cost)
+
+        // Add the orderDetail Id to the order
+        const data = await orderModel.findByIdAndUpdate(createdOrder._id, {
+            cost: cost,
+            orderDetails: totalOrderDetail
+        }, { new: true });
+
+        // B6: Return success response 
+        return response.status(200).json({
+            status: "Create Order Successfully",
+            data: data,
+        });
+
+    } catch (err) {
+        return response.status(500).json({
+            status: "Internal server error",
+            message: err.message
+        });
+    }
+
 };
 
 module.exports = {

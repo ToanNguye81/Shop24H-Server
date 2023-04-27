@@ -457,5 +457,6 @@ module.exports = {
     deleteOrderById,
     createOrderOfCustomer,
     getAllOrderOfCustomer,
+    createOrderOfCustomerVer2,
     validateOrder
 }

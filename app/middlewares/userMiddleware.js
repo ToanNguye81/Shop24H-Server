@@ -33,9 +33,10 @@ const authenticateUser = (req, res, next) => {
 };
 
 
-//Authorize User
+//Authorize User - Phân quyền
 const authorizeUser = (allowedRoles) => {
   return (req, res, next) => {
+    //Find User By Id in database
     user.findById(req.userId)
       .then(user => {
         if (!user) {
@@ -43,7 +44,6 @@ const authorizeUser = (allowedRoles) => {
           return res.status(404).json({ message: 'User not found' });
         }
         if (allowedRoles.includes(user.role)) {
-          console.log("Cho phép truy cập")
           next();
         } else {
           console.log("Access denied")

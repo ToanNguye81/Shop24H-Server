@@ -27,9 +27,9 @@ router.get("/customers/:customerId/orders", orderController.getAllOrderOfCustome
 
 router.post("/customers/:customerId/orders", orderController.createOrderOfCustomer)
 
-router.post("/orders/orderByEmail",
-    authFireBase ||
-    userMiddleware.authenticateUser && userMiddleware.authorizeUser(['manager', 'employee']),
+router.post("/orders/test",
+    userMiddleware.authenticateUser,
+    userMiddleware.authorizeUser(['manager', 'employee']),
     orderController.createOrderOfCustomerVer2)
 
 module.exports = router;

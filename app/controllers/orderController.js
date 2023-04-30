@@ -342,11 +342,9 @@ const deleteOrderById = async (request, response) => {
 const createOrderOfCustomerVer2 = async (request, response) => {
 
     //B1: Prepare data from request
-    const { email } = request;
-    const { lastName, firstName, country, city, phone, address, cart, note } = request.body
+    const { lastName, firstName, country,email, city, phone, address, cart, note } = request.body
     const fields = ["lastName", "firstName", "country", "city", "phone", "address"]
 
-    console.log({ lastName, firstName, country, city, phone, address, cart, note, email })
 
     //B2: Valid data
     if (!cart || !cart.length) {
@@ -354,6 +352,13 @@ const createOrderOfCustomerVer2 = async (request, response) => {
             status: "Bad request",
             message: `Your cart is empty`
         })
+    }
+    
+    if (!validator.isEmail(email)) {
+        return response.status(400).json({
+            status: "Bad Request",
+            message: "Email is invalid"
+        });
     }
 
     for (const field of fields) {

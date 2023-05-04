@@ -1,7 +1,7 @@
 // Khai báo thư viện mongo
 const mongoose = require("mongoose")
 const crypto = require('crypto');
-const moment = require('moment');
+// const moment = require('moment');
 
 
 //Khai báo class Schema
@@ -12,21 +12,21 @@ const orderSchema = new Schema({
     orderCode: {
         type: String,
         unique: true,
-        default: () => crypto.randomBytes(3).toString('hex').substr(0, 6)
+        default: () => crypto.randomBytes(3).toString('hex').substr(0, 6).toLocaleUpperCase()
     },
     orderDate: {
         type: Date,
         default: Date.now(),
-        get: function (date) {
-            return moment(date).format('DD-MM-YYYY');
-        }
+        // get: function (date) {
+        //     return moment(date).format('DD-MM-YYYY');
+        // }
     },
     shippedDate: {
         type: Date,
         default: Date.now(),
-        get: function (date) {
-            return moment(date).format('DD-MM-YYYY');
-        }
+        // get: function (date) {
+        //     return moment(date).format('DD-MM-YYYY');
+        // }
         // require: false
     },
     note: {

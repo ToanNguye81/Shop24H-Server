@@ -13,8 +13,8 @@ const userController = require("../controllers/userController");
 const customerController = require("../controllers/customerController")
 
 router.get("/customers",
-    // userMiddleware.authenticateUser,
-    // userMiddleware.authorizeUser(['manager']),
+    userMiddleware.authenticateUser,
+    userMiddleware.authorizeUser(['manager']),
     customerController.getAllCustomer)
 
 router.post("/customers",
